@@ -1,0 +1,1 @@
+com.oierbravo.melter.compat.kubejs.KubeJSPlugin

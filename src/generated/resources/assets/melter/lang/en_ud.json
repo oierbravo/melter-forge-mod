@@ -1,0 +1,9 @@
+{
+  "block.melter.melter": "\u0279\u01DD\u0287\u05DF\u01DDW",
+  "itemGroup.Melter": "\u0279\u01DD\u0287\u05DF\u01DDW",
+  "melter.block.display": "\u0279\u01DD\u0287\u05DF\u01DDW",
+  "melter.tooltip.multiplier": "%d :\u0279\u01DD\u0131\u05DFd\u0131\u0287\u05DFn\u026F \u0287\u0250\u01DDH",
+  "melter.tooltip.multiplier_none": "\u00A1p\u01DD\u0287\u0250\u01DD\u0265 \u0287oN\u0254\u00A7",
+  "melter.tooltip.progress": "%d%% :ss\u01DD\u0279bo\u0279\u0500",
+  "melting.recipe": "bu\u0131\u0287\u05DF\u01DDW"
+}
