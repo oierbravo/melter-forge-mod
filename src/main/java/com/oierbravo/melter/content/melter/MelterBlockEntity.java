@@ -247,7 +247,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
             FluidStack output = recipe.get().getOutputFluidStack();
             //pBlockEntity.fluidTankHandler.fill( new FluidStack(output, output.getAmount()), IFluidHandler.FluidAction.EXECUTE);
-            pBlockEntity.fluidTankHandler.fill( new FluidStack(Fluids.LAVA,250),IFluidHandler.FluidAction.EXECUTE);
+            pBlockEntity.fluidTankHandler.fill( new FluidStack(Fluids.LAVA,output.getAmount()),IFluidHandler.FluidAction.EXECUTE);
         }
 
         pBlockEntity.resetProgress();
