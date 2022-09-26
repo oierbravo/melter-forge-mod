@@ -35,6 +35,7 @@ High tier heat sources are from Create.
 ## KubeJS Integration
 ```
 //.melterMelting(OUTPUT_FLUID,INPUT_BLOCK).processingTime(INT);
-event.recipes.melterMelting(Fluid.of('minecraft:water', 400),"#minecraft:leaves").processingTime(200);
+event.recipes.melterMelting(Fluid.of('minecraft:water', 200),"#minecraft:leaves").processingTime(200); //Water generator
+event.recipes.melterMelting(Fluid.of('minecraft:lava', 250),"#forge:cobblestone").processingTime(1000); //Lava generator
 ```
 
