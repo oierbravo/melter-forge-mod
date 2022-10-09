@@ -12,7 +12,6 @@ import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
@@ -73,7 +72,7 @@ public class Melter
 
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(Items.EGG);
+            return new ItemStack(ModBlocks.MELTER.get());
         }
     }
     public static ResourceLocation asResource(String path) {
