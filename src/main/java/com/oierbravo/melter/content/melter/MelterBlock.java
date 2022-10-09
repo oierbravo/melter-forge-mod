@@ -1,6 +1,5 @@
 package com.oierbravo.melter.content.melter;
 
-import com.google.common.collect.ImmutableMap;
 import com.oierbravo.melter.foundation.block.ITE;
 import com.oierbravo.melter.foundation.utility.Iterate;
 import com.oierbravo.melter.registrate.ModBlockEntities;
@@ -38,7 +37,6 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
 
 public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntity> {
     public static final EnumProperty<HeatSources> HEAT_SOURCE = EnumProperty.create("heatesource", HeatSources.class);

@@ -3,25 +3,22 @@ package com.oierbravo.melter.content.melter;
 import com.oierbravo.melter.Melter;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 public enum HeatSources implements StringRepresentable {
     NONE(0,"", "None"),
-    TORCH(1,"minecraft:torch", "Torch"),
-    WALL_TORCH(1,"minecraft:wall_torch", "Torch"),
-    CAMPFIRE(2,"minecraft:campfire", "Campfire"),
-    LAVA(4,"minecraft:lava", "Lava"),
-    BLAZE_BURNER_INACTIVE(8,"create:blaze_burner:smouldering", "Blaze burner Inactive"),
-    BLAZE_BURNER_FADING(9,"create:blaze_burner:fading","Blaze burner Active"),
-    BLAZE_BURNER_ACTIVE(10,"create:blaze_burner:kindled","Blaze burner Active"),
-    BLAZE_BURNER_SUPERHEATED(16,"create:blaze_burner:seething","Blaze burner SUPERHEATED!");
+    TORCH(1,"Block{minecraft:torch}", "Torch"),
+    WALL_TORCH(1,"Block{minecraft:torch}", "Torch"),
+    CAMPFIRE(2,"Block{minecraft:campfire}", "Campfire"),
+    LAVA(4,"Block{minecraft:lava}", "Lava"),
+    BLAZE_BURNER_INACTIVE(8,"create:blocks/blaze_burner:smouldering", "BB.Inactive"),
+    BLAZE_BURNER_FADING(9,"create:blocks/blaze_burner:fading","BB.Active"),
+    BLAZE_BURNER_ACTIVE(10,"create:blocks/blaze_burner:kindled","BB.Active"),
+    BLAZE_BURNER_SUPERHEATED(16,"create:blocks/blaze_burner:seething","SUPERHEATED!");
     // CREATE HeatLevel: NONE, SMOULDERING, FADING, KINDLED, SEETHING,;
     private int multiplier;
     private String resourceName;
@@ -52,20 +49,18 @@ public enum HeatSources implements StringRepresentable {
                 .orElse(HeatSources.NONE);
     }
     public static HeatSources get(BlockState blockState){
-        ResourceLocation resourceLocation = blockState.getBlock().getRegistryName();
-        String nameString = resourceLocation.toString();
+        String nameString = blockState.getBlock().getLootTable().toString();
+        String blockString = blockState.getBlock().toString();
         if(Melter.withCreate && (blockState.hasProperty(BlazeBurnerBlock.HEAT_LEVEL))){
             BlazeBurnerBlock.HeatLevel heatLevel = blockState.getValue(BlazeBurnerBlock.HEAT_LEVEL);
             nameString += ":" +heatLevel.getSerializedName();
+            return get(nameString);
         }
-        return get(nameString);
+
+        return get(blockString);
     }
     public static boolean isHeatSource(BlockState blockState){
-        if(Melter.withCreate && blockState.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)){
-            return true;
-        }
-        ResourceLocation name = blockState.getBlock().getRegistryName();
-        HeatSources source = HeatSources.get(name.toString());
+        HeatSources source = HeatSources.get(blockState);
         if(source != HeatSources.NONE){
             return true;
         }

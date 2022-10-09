@@ -15,8 +15,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 
 public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntity> {
     public MelterBlockRenderer(BlockEntityRendererProvider.Context context) {
@@ -39,10 +40,13 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         Matrix3f matrix3f = matrix.last().normal();
 
         Fluid fluid = fluidStack.getFluid();
-        FluidAttributes fluidAttributes = fluid.getAttributes();
-        TextureAtlasSprite fluidTexture = getFluidStillSprite(fluidAttributes, fluidStack);
+        IClientFluidTypeExtensions clientFluid = IClientFluidTypeExtensions.of(fluid);
+        FluidType fluidAttributes = fluid.getFluidType();
+        TextureAtlasSprite fluidTexture = Minecraft.getInstance()
+                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                .apply(clientFluid.getStillTexture(fluidStack));
 
-        int color = fluidAttributes.getColor(fluidStack);
+        int color = clientFluid.getTintColor(fluidStack);
 
         VertexConsumer builder = buffer.getBuffer(RenderType.translucent());
         //percent = percent / 2; // we only need half block liquid.
@@ -94,9 +98,5 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
                 .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(normalMatrix, 0, 1, 0)
                 .endVertex();
     }
-    private TextureAtlasSprite getFluidStillSprite(FluidAttributes attributes, FluidStack fluidStack) {
-        return Minecraft.getInstance()
-                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(attributes.getStillTexture(fluidStack));
-    }
+
 }

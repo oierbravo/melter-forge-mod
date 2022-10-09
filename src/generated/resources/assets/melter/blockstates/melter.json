@@ -1,5 +1,23 @@
 {
   "variants": {
+    "heatesource=blaze_burner_active": {
+      "model": "melter:block/melter_blaze_burner_active"
+    },
+    "heatesource=blaze_burner_fading": {
+      "model": "melter:block/melter_blaze_burner_fading"
+    },
+    "heatesource=blaze_burner_inactive": {
+      "model": "melter:block/melter_blaze_burner_inactive"
+    },
+    "heatesource=blaze_burner_superheated": {
+      "model": "melter:block/melter_blaze_burner_superheated"
+    },
+    "heatesource=campfire": {
+      "model": "melter:block/melter_campfire"
+    },
+    "heatesource=lava": {
+      "model": "melter:block/melter_lava"
+    },
     "heatesource=none": {
       "model": "melter:block/melter_none"
     },
@@ -8,24 +26,6 @@
     },
     "heatesource=wall_torch": {
       "model": "melter:block/melter_wall_torch"
-    },
-    "heatesource=campfire": {
-      "model": "melter:block/melter_campfire"
-    },
-    "heatesource=lava": {
-      "model": "melter:block/melter_lava"
-    },
-    "heatesource=blaze_burner_inactive": {
-      "model": "melter:block/melter_blaze_burner_inactive"
-    },
-    "heatesource=blaze_burner_fading": {
-      "model": "melter:block/melter_blaze_burner_fading"
-    },
-    "heatesource=blaze_burner_active": {
-      "model": "melter:block/melter_blaze_burner_active"
-    },
-    "heatesource=blaze_burner_superheated": {
-      "model": "melter:block/melter_blaze_burner_superheated"
     }
   }
 }

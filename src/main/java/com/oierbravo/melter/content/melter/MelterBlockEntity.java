@@ -1,62 +1,38 @@
 package com.oierbravo.melter.content.melter;
 
-import com.oierbravo.melter.Melter;
-import com.oierbravo.melter.config.ModConfigCommon;
-import com.oierbravo.melter.foundation.block.ITE;
-import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class MelterBlockEntity extends BlockEntity  {
 
 
-    private final int FLUID_CAPACITY = ModConfigCommon.MELTER_CAPACITY.get();
-    private static final int FLIUD_PER_TICK = ModConfigCommon.MELTER_FLUID_PER_TICK.get();
+    private final int FLUID_CAPACITY = MelterConfig.MELTER_CAPACITY.get();
+    private static final int FLIUD_PER_TICK = MelterConfig.MELTER_FLUID_PER_TICK.get();
     private CompoundTag updateTag;
     public final ItemStackHandler inputItems = createInputItemHandler();
     private final LazyOptional<IItemHandler> inputItemHandler = LazyOptional.of(() -> inputItems);
@@ -69,7 +45,7 @@ public class MelterBlockEntity extends BlockEntity  {
     private BlockState lastBlockState;
     public MelterBlockEntity(BlockEntityType<?> pType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pType, pWorldPosition, pBlockState);
-        updateTag = getTileData();
+        updateTag = getPersistentData();
         lastBlockState = this.getBlockState();
 
     }
@@ -80,7 +56,7 @@ public class MelterBlockEntity extends BlockEntity  {
             @Override
             protected void onContentsChanged() {
                 setChanged();
-                clientSync();
+                //clientSync();
             }
 
         };
@@ -92,7 +68,7 @@ public class MelterBlockEntity extends BlockEntity  {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
-                clientSync();
+               // clientSync();
             }
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
@@ -199,7 +175,7 @@ public class MelterBlockEntity extends BlockEntity  {
         if (canCraftFluid(pBlockEntity)) {
             pBlockEntity.progress += 1 * pBlockEntity.getHeatSourceMultiplier();
             BlockEntity.setChanged(pLevel, pPos, pState);
-            pBlockEntity.clientSync();
+           // pBlockEntity.clientSync();
             pBlockEntity.maxProgress = pBlockEntity.getProcessingTime(pBlockEntity);
             if (pBlockEntity.progress > pBlockEntity.maxProgress) {
                 MelterBlockEntity.craftFluid(pBlockEntity);
@@ -207,7 +183,7 @@ public class MelterBlockEntity extends BlockEntity  {
         } else {
             pBlockEntity.resetProgress();
             BlockEntity.setChanged(pLevel, pPos, pState);
-            pBlockEntity.clientSync();
+            //pBlockEntity.clientSync();
         }
 
 
@@ -229,7 +205,7 @@ public class MelterBlockEntity extends BlockEntity  {
         BlockState newState = this.getBlockState().setValue(MelterBlock.HEAT_SOURCE,HeatSources.get(below));
         if(!pLastState.equals(newState)){
             this.getLevel().setBlock(pos,newState,Block.UPDATE_ALL);
-            clientSync();
+            //clientSync();
         }
     }
     private static void craftFluid(MelterBlockEntity pBlockEntity) {
@@ -247,12 +223,12 @@ public class MelterBlockEntity extends BlockEntity  {
 
             FluidStack output = recipe.get().getOutputFluidStack();
             //pBlockEntity.fluidTankHandler.fill( new FluidStack(output, output.getAmount()), IFluidHandler.FluidAction.EXECUTE);
-            pBlockEntity.fluidTankHandler.fill( new FluidStack(Fluids.LAVA,output.getAmount()),IFluidHandler.FluidAction.EXECUTE);
+            pBlockEntity.fluidTankHandler.fill( new FluidStack(output.getFluid(),output.getAmount()),IFluidHandler.FluidAction.EXECUTE);
         }
 
         pBlockEntity.resetProgress();
         pBlockEntity.setChanged();
-        pBlockEntity.clientSync();
+        //pBlockEntity.clientSync();
     }
 
 
@@ -321,7 +297,7 @@ public class MelterBlockEntity extends BlockEntity  {
         this.load(pkt.getTag());
     }
 
-    public void clientSync() {
+    /*public void clientSync() {
         if (Objects.requireNonNull(this.getLevel()).isClientSide) {
             return;
         }
@@ -333,7 +309,7 @@ public class MelterBlockEntity extends BlockEntity  {
                 e.connection.send(updatePacket);
             }
         });
-    }
+    }*/
 
     public IFluidHandler getFluidHandler() {
         return fluidTankHandler;
