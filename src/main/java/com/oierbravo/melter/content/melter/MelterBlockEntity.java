@@ -1,5 +1,7 @@
 package com.oierbravo.melter.content.melter;
 
+import com.oierbravo.melter.network.packets.FluidStackSyncS2CPacket;
+import com.oierbravo.melter.registrate.ModMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -56,7 +58,9 @@ public class MelterBlockEntity extends BlockEntity  {
             @Override
             protected void onContentsChanged() {
                 setChanged();
-                //clientSync();
+                if(!level.isClientSide()) {
+                    ModMessages.sendToClients(new FluidStackSyncS2CPacket(this.fluid, worldPosition));
+                }
             }
 
         };
@@ -313,6 +317,9 @@ public class MelterBlockEntity extends BlockEntity  {
 
     public IFluidHandler getFluidHandler() {
         return fluidTankHandler;
+    }
+    public void setFluid(FluidStack fluidStack) {
+        fluidTankHandler.setFluid(fluidStack);
     }
 
     public int getProgressPercent() {

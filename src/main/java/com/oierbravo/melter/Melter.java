@@ -3,10 +3,7 @@ package com.oierbravo.melter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
-import com.oierbravo.melter.registrate.Config;
-import com.oierbravo.melter.registrate.ModBlockEntities;
-import com.oierbravo.melter.registrate.ModBlocks;
-import com.oierbravo.melter.registrate.ModRecipes;
+import com.oierbravo.melter.registrate.*;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.minecraft.resources.ResourceLocation;
@@ -48,6 +45,7 @@ public class Melter
         ModBlocks.register();
         ModBlockEntities.register();
         ModRecipes.register(modEventBus);
+        ModMessages.register();
         Config.register();
 
         registrate().addRawLang("melter.block.display", "Melter");

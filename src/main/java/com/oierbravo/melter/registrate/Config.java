@@ -9,8 +9,8 @@ import net.minecraftforge.fml.config.ModConfig;
 public class Config {
     public static void register() {
         registerServerConfigs();
-        registerCommonConfigs();
-        registerClientConfigs();
+        //registerCommonConfigs();
+        //registerClientConfigs();
     }
     private static void registerClientConfigs() {
         ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
