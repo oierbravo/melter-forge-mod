@@ -1,13 +1,15 @@
 package com.oierbravo.melter.compat.kubejs;
 
-import dev.latvian.mods.kubejs.fluid.FluidStackJS;
+import com.simibubi.create.foundation.fluid.FluidIngredient;
+import dev.latvian.mods.kubejs.fluid.UnboundFluidStackJS;
 import dev.latvian.mods.kubejs.recipe.*;
+import dev.latvian.mods.rhino.NativeJavaObject;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
 public class MeltingRecipeProcessing extends RecipeJS {
-    public FluidStackJS outputFluid;
+    public FluidIngredient outputFluid;
     public Ingredient inputIngredient;
     public MeltingRecipeProcessing(){
 
@@ -28,13 +30,26 @@ public class MeltingRecipeProcessing extends RecipeJS {
 
         json.addProperty("processingTime", 100);
     }
-    public FluidStackJS parseOutputFluid(@Nullable Object o) {
-        FluidStackJS result = FluidStackJS.of(o);
+    public FluidIngredient parseOutputFluid(@Nullable Object o) {
+
+        if(o instanceof NativeJavaObject){
+            NativeJavaObject object = (NativeJavaObject) o;
+            Object a =  object.unwrap();
+            //if(a instanceof )
+            UnboundFluidStackJS unboundFluidStackJS = (UnboundFluidStackJS) object.unwrap();
+            if (unboundFluidStackJS != null && !unboundFluidStackJS.isEmpty()) {
+                return FluidIngredient.fromFluid(unboundFluidStackJS.getFluid(), (int) unboundFluidStackJS.getAmount());
+            }
+            throw new RecipeExceptionJS("" + o + " is not a valid result!");
+        }
+        throw new RecipeExceptionJS("" + o + " is not a valid result!");
+
+        /*FluidStackJS result = FluidStackJS.of(o);
         if (result != null && !result.isEmpty()) {
             return result;
         } else {
             throw new RecipeExceptionJS("" + o + " is not a valid result!");
-        }
+        }*/
     }
 
     @Override
@@ -47,7 +62,7 @@ public class MeltingRecipeProcessing extends RecipeJS {
     @Override
     public void serialize() {
         if (serializeOutputs) {
-            json.add("output",outputFluid.toJson());
+            json.add("output",outputFluid.serialize());
         }
         if (serializeInputs) {
             json.add("input", inputIngredient.toJson());

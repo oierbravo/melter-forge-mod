@@ -17,21 +17,20 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
+import org.jetbrains.annotations.NotNull;
 
 public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntity> {
     public MelterBlockRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(MelterBlockEntity pBlockEntity, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay) {
+    public void render(MelterBlockEntity pBlockEntity, float pPartialTick, @NotNull PoseStack pPoseStack, @NotNull MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay) {
         FluidStack fluidStack = pBlockEntity.getFluidHandler().getFluidInTank(0);
         if(!fluidStack.isEmpty()){
             int amount = fluidStack.getAmount();
             int total = pBlockEntity.getFluidHandler().getTankCapacity(0);
             this.renderFluidInTank(pBlockEntity.getLevel(), pBlockEntity.getBlockPos(), fluidStack, pPoseStack, pBufferSource, (amount / (float) total));
         }
-        //FluidRenderer.renderFluidBox(fluidStack,0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,pBufferSource,pPoseStack,pPackedLight,false);
     }
     private void renderFluidInTank(BlockAndTintGetter world, BlockPos pos, FluidStack fluidStack, PoseStack matrix, MultiBufferSource buffer, float percent) {
         matrix.pushPose();
@@ -41,7 +40,6 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
 
         Fluid fluid = fluidStack.getFluid();
         IClientFluidTypeExtensions clientFluid = IClientFluidTypeExtensions.of(fluid);
-        FluidType fluidAttributes = fluid.getFluidType();
         TextureAtlasSprite fluidTexture = Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(clientFluid.getStillTexture(fluidStack));
@@ -49,11 +47,6 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         int color = clientFluid.getTintColor(fluidStack);
 
         VertexConsumer builder = buffer.getBuffer(RenderType.translucent());
-        //percent = percent / 2; // we only need half block liquid.
-        //for (int i = 0; i < 4; i++) {
-        //this.renderNorthFluidFace(fluidTexture, matrix4f, matrix3f, builder, color, percent);
-        //matrix.mulPose(Vector3f.YP.rotationDegrees(90));
-        //}
         this.renderTopFluidFace(fluidTexture, matrix4f, matrix3f, builder, color, percent);
         matrix.popPose();
 
@@ -72,9 +65,6 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         float maxU = sprite.getU(16);
         float minV = sprite.getV(4);
         float maxV = sprite.getV(16);
-        float test = percent * height;
-
-        float test2 = percent * height;
 
         float pY = -height / 2 + percent * height;
 

@@ -52,7 +52,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
     private FluidTank createFluidTank() {
 
-        return new FluidTank(FLUID_CAPACITY) {
+        return new FluidTank(1000/*FLUID_CAPACITY*/) {
             @Override
             protected void onContentsChanged() {
                 setChanged();
