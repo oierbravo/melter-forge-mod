@@ -39,8 +39,8 @@ public class JEIPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         RecipeManager rm = Objects.requireNonNull(Minecraft.getInstance().level).getRecipeManager();
 
-        List<MeltingRecipe> sellingRecipes = rm.getAllRecipesFor(MeltingRecipe.Type.INSTANCE);
-        registration.addRecipes(new RecipeType<>(MeltingRecipeCategory.UID, MeltingRecipe.class), sellingRecipes);
+        List<MeltingRecipe> meltingRecipes = rm.getAllRecipesFor(MeltingRecipe.Type.INSTANCE);
+        registration.addRecipes(new RecipeType<>(MeltingRecipeCategory.UID, MeltingRecipe.class), meltingRecipes);
 
     }
 }

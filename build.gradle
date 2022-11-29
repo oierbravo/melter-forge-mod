@@ -172,8 +172,13 @@ dependencies {
     }
     implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
 
-    compileOnly fg.deobf("mezz.jei:jei-${jei_minecraft_version}:${jei_version}:api")
-    implementation fg.deobf("mezz.jei:jei-${jei_minecraft_version}:${jei_version}")
+   // implementation fg.deobf("mezz.jei:jei-${jei_minecraft_version}:${jei_version}:api")
+   // implementation fg.deobf("mezz.jei:jei-${jei_minecraft_version}:${jei_version}")
+
+    compileOnly(fg.deobf("mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${jei_minecraft_version}-forge-api:${jei_version}"))
+    // at runtime, use the full JEI jar for Forge
+    runtimeOnly(fg.deobf("mezz.jei:jei-${jei_minecraft_version}-forge:${jei_version}"))
 
     implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")

@@ -1,6 +1,7 @@
 package com.oierbravo.melter.content.melter;
 
 import com.oierbravo.melter.config.ModConfigCommon;
+import com.oierbravo.melter.registrate.ModRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -169,6 +170,7 @@ public class MelterBlockEntity extends BlockEntity  {
         SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
         inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
 
+        assert level != null;
         return level.getRecipeManager().getRecipeFor(MeltingRecipe.Type.INSTANCE, inputInventory, level).map(MeltingRecipe::getProcessingTime).orElse(200);
     }
 
@@ -181,7 +183,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
 
         if (canCraftFluid(pBlockEntity)) {
-            pBlockEntity.progress += 1 * pBlockEntity.getHeatSourceMultiplier();
+            pBlockEntity.progress += pBlockEntity.getHeatSourceMultiplier();
             BlockEntity.setChanged(pLevel, pPos, pState);
             pBlockEntity.clientSync();
             pBlockEntity.maxProgress = pBlockEntity.getProcessingTime(pBlockEntity);
@@ -230,7 +232,6 @@ public class MelterBlockEntity extends BlockEntity  {
             pBlockEntity.inputItems.extractItem(0, ingredientAmount, false);
 
             FluidStack output = recipe.get().getOutputFluidStack();
-            //pBlockEntity.fluidTankHandler.fill( new FluidStack(output, output.getAmount()), IFluidHandler.FluidAction.EXECUTE);
             pBlockEntity.fluidTankHandler.fill( new FluidStack(output.getFluid(),output.getAmount()),IFluidHandler.FluidAction.EXECUTE);
         }
 
@@ -242,12 +243,13 @@ public class MelterBlockEntity extends BlockEntity  {
 
     static boolean canCraftFluid(MelterBlockEntity pBlockEntity) {
         Level level = pBlockEntity.getLevel();
+        if(level == null)
+            return false;
         SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
         inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
 
 
-        Optional<MeltingRecipe> match = level.getRecipeManager()
-                .getRecipeFor(MeltingRecipe.Type.INSTANCE, inputInventory, level);
+        Optional<MeltingRecipe> match = ModRecipes.find(inputInventory,level);
         return match.isPresent()
                 && MelterBlockEntity.hasEnoughInputItems(inputInventory,match.get().getIngredients().get(0).getItems()[0].getCount())
                 && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().getOutputFluidStack(),match.get().getOutputFluidAmount())
@@ -262,7 +264,7 @@ public class MelterBlockEntity extends BlockEntity  {
         SimpleContainer inputInventory = new SimpleContainer(1);
         inputInventory.setItem(0, stack);
 
-        return level.getRecipeManager().getRecipeFor(MeltingRecipe.Type.INSTANCE, inputInventory, level).isPresent();
+        return ModRecipes.find(inputInventory,level).isPresent();
     }
     protected static boolean hasEnoughInputItems(SimpleContainer inventory, int count){
         return inventory.getItem(0).getCount() >= count;
@@ -278,7 +280,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
     protected static boolean hasHeatSourceBelow(MelterBlockEntity pBlockEntity){
         BlockPos pos = pBlockEntity.getBlockPos();
-        BlockState below = pBlockEntity.getLevel().getBlockState(pos.below());
+        BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
         return HeatSources.isHeatSource(below);
     }
 
@@ -302,7 +304,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        this.load(pkt.getTag());
+        this.load(Objects.requireNonNull(pkt.getTag()));
     }
 
     public void clientSync() {
@@ -323,6 +325,9 @@ public class MelterBlockEntity extends BlockEntity  {
         return fluidTankHandler;
     }
 
+    public IItemHandler getItemHandler() {
+        return inputItems;
+    }
     public int getProgressPercent() {
         return this.progress * 100 / this.maxProgress;
     }

@@ -1,16 +1,9 @@
 package com.oierbravo.melter.compat.kubejs;
 
-import com.google.gson.JsonArray;
-import com.oierbravo.melter.foundation.fluid.FluidIngredient;
-import dev.latvian.mods.kubejs.fluid.EmptyFluidStackJS;
 import dev.latvian.mods.kubejs.fluid.FluidStackJS;
-import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.item.ingredient.IngredientJS;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.util.ListJS;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MeltingRecipeProcessing extends RecipeJS {
     public FluidStackJS outputFluid;
@@ -20,11 +13,12 @@ public class MeltingRecipeProcessing extends RecipeJS {
         outputFluid = FluidStackJS.of(listJS.get(0));
         inputIngredient = parseIngredientItem(listJS.get(1));
         json.addProperty("processingTime", 200);
+        json.addProperty("minimumHeat", 1);
     }
 
     @Override
     public void deserialize() {
-        inputIngredient = parseIngredientItem(json.get("input").getAsJsonObject());
+        inputIngredient = parseIngredientItem(json.get("input"));
         outputFluid = FluidStackJS.fromJson(json.get("output"));
     }
 
@@ -39,4 +33,10 @@ public class MeltingRecipeProcessing extends RecipeJS {
         save();
         return this;
     }
+    public MeltingRecipeProcessing minimumHeat(int minimum) {
+        json.addProperty("minimumHeat", minimum);
+        save();
+        return this;
+    }
+
 }
