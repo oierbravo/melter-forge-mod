@@ -1,7 +1,9 @@
 package com.oierbravo.melter.content.melter;
 
 import com.oierbravo.melter.network.packets.FluidStackSyncS2CPacket;
+import com.oierbravo.melter.network.packets.ItemStackSyncS2CPacket;
 import com.oierbravo.melter.registrate.ModMessages;
+import com.oierbravo.melter.registrate.ModRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.Optional;
 
 public class MelterBlockEntity extends BlockEntity  {
@@ -54,7 +57,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
     private FluidTank createFluidTank() {
 
-        return new FluidTank(1000/*FLUID_CAPACITY*/) {
+        return new FluidTank(FLUID_CAPACITY) {
             @Override
             protected void onContentsChanged() {
                 setChanged();
@@ -72,6 +75,9 @@ public class MelterBlockEntity extends BlockEntity  {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
+                if(!level.isClientSide()) {
+                    ModMessages.sendToClients(new ItemStackSyncS2CPacket(this.getStackInSlot(0), worldPosition));
+                }
                // clientSync();
             }
             @Override
@@ -177,7 +183,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
 
         if (canCraftFluid(pBlockEntity)) {
-            pBlockEntity.progress += 1 * pBlockEntity.getHeatSourceMultiplier();
+            pBlockEntity.progress += pBlockEntity.getHeatSourceMultiplier();
             BlockEntity.setChanged(pLevel, pPos, pState);
            // pBlockEntity.clientSync();
             pBlockEntity.maxProgress = pBlockEntity.getProcessingTime(pBlockEntity);
@@ -238,12 +244,13 @@ public class MelterBlockEntity extends BlockEntity  {
 
     static boolean canCraftFluid(MelterBlockEntity pBlockEntity) {
         Level level = pBlockEntity.getLevel();
+        if(level == null)
+            return false;
         SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
         inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
 
 
-        Optional<MeltingRecipe> match = level.getRecipeManager()
-                .getRecipeFor(MeltingRecipe.Type.INSTANCE, inputInventory, level);
+        Optional<MeltingRecipe> match = ModRecipes.find(inputInventory,level);
         return match.isPresent()
                 && MelterBlockEntity.hasEnoughInputItems(inputInventory,match.get().getIngredients().get(0).getItems()[0].getCount())
                 && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().getOutputFluidStack(),match.get().getOutputFluidAmount())
@@ -258,7 +265,7 @@ public class MelterBlockEntity extends BlockEntity  {
         SimpleContainer inputInventory = new SimpleContainer(1);
         inputInventory.setItem(0, stack);
 
-        return level.getRecipeManager().getRecipeFor(MeltingRecipe.Type.INSTANCE, inputInventory, level).isPresent();
+        return ModRecipes.find(inputInventory,level).isPresent();
     }
     protected static boolean hasEnoughInputItems(SimpleContainer inventory, int count){
         return inventory.getItem(0).getCount() >= count;
@@ -274,7 +281,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
     protected static boolean hasHeatSourceBelow(MelterBlockEntity pBlockEntity){
         BlockPos pos = pBlockEntity.getBlockPos();
-        BlockState below = pBlockEntity.getLevel().getBlockState(pos.below());
+        BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
         return HeatSources.isHeatSource(below);
     }
 
@@ -318,6 +325,9 @@ public class MelterBlockEntity extends BlockEntity  {
     public IFluidHandler getFluidHandler() {
         return fluidTankHandler;
     }
+    public IItemHandler getItemHandler() {
+        return inputItems;
+    }
     public void setFluid(FluidStack fluidStack) {
         fluidTankHandler.setFluid(fluidStack);
     }
@@ -327,4 +337,7 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
 
+    public void setItemStack(ItemStack itemStack) {
+        inputItems.setStackInSlot(0,itemStack);
+    }
 }

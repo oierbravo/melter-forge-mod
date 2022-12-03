@@ -102,4 +102,10 @@ public class MeltingRecipeProcessing extends RecipeJS {
         save();
         return this;
     }
+    public MeltingRecipeProcessing minimumHeat(int minimum) {
+        json.addProperty("minimumHeat", minimum);
+        save();
+        return this;
+    }
+
 }

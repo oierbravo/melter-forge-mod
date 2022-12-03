@@ -15,17 +15,21 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 
 public class MeltingRecipe implements Recipe<SimpleContainer> {
     private final ResourceLocation id;
-    private final NonNullList<FluidStack> output;
-    private final NonNullList<Ingredient> input;
+    //private final NonNullList<FluidStack> output;
+    //private final NonNullList<Ingredient> input;
+
+    private final FluidStack output;
+    private final Ingredient input;
 
     private final int processingTime;
-    public MeltingRecipe(ResourceLocation id, NonNullList<FluidStack> output,
-                         NonNullList<Ingredient> input, int processingTime) {
+    public MeltingRecipe(ResourceLocation id, FluidStack output,
+                         Ingredient input, int processingTime) {
         this.id = id;
         this.output = output;
         this.input = input;
@@ -33,8 +37,8 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
         validate(id);
     }
     @Override
-    public boolean matches(SimpleContainer pContainer, Level pLevel) {
-        return input.get(0).test(pContainer.getItem(0));
+    public boolean matches(SimpleContainer pContainer, @NotNull Level pLevel) {
+        return input.test(pContainer.getItem(0));
     }
 
     @Override
@@ -69,7 +73,13 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
     }
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
+     public NonNullList<Ingredient> getIngredients() {
+        NonNullList<Ingredient> nonnulllist = NonNullList.create();
+        nonnulllist.add(this.input);
+        return nonnulllist;
+    }
+
+    public Ingredient getIngredient() {
         return input;
     }
     public int  getProcessingTime() {
@@ -77,49 +87,20 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
     }
 
     public FluidStack getOutputFluidStack() {
-        return output.get(0);
+        return output;
     }
-    public NonNullList<FluidStack> getOutput() {
+    public FluidStack getOutput() {
         return output;
     }
     private void validate(ResourceLocation recipeTypeId) {
         String messageHeader = "Your custom " + recipeTypeId + " recipe (" + id.toString() + ")";
         Logger logger = Melter.LOGGER;
-        int ingredientCount = input.size();
-        int outputCount = output.size();
-
-        if (ingredientCount > getMaxInputCount())
-            logger.warn(messageHeader + " has more item inputs (" + ingredientCount + ") than supported ("
-                    + getMaxInputCount() + ").");
-
-        /*if (outputCount > getMaxOutputCount())
-            logger.warn(messageHeader + " has more item outputs (" + outputCount + ") than supported ("
-                    + getMaxOutputCount() + ").");*/
-
         if (processingTime > 0 && !canSpecifyDuration())
             logger.warn(messageHeader + " specified a duration. Durations have no impact on this type of recipe.");
-
-
-
-
-
-
-
-        if (outputCount > getMaxFluidOutputCount())
-            logger.warn(messageHeader + " has more fluid outputs (" + outputCount + ") than supported ("
-                    + getMaxFluidOutputCount() + ").");
-    }
-
-    private int getMaxFluidOutputCount() {
-        return 1000;
     }
 
     private boolean canSpecifyDuration() {
         return true;
-    }
-
-    private int getMaxInputCount() {
-        return 64;
     }
 
     public int getOutputFluidAmount() {
@@ -138,54 +119,35 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
 
         @Override
         public MeltingRecipe fromJson(ResourceLocation id, JsonObject json) {
-            //ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "output"));
-            NonNullList<FluidStack> output = NonNullList.create();
 
-            output.add(FluidHelper.deserializeFluidStack(GsonHelper.getAsJsonObject(json,"output")));
+            FluidStack output = FluidHelper.deserializeFluidStack(GsonHelper.getAsJsonObject(json,"output"));
 
-            JsonObject ingredients = GsonHelper.getAsJsonObject(json, "input");
-            NonNullList<Ingredient> inputs = NonNullList.withSize(1, Ingredient.EMPTY);
-
-            //for (int i = 0; i < inputs.size(); i++) {
-                inputs.set(0, Ingredient.fromJson(ingredients));
-            //}
+            Ingredient input =  Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "input"));
             int processingTime = 200;
             if (GsonHelper.isValidNode(json, "processingTime")) {
                 processingTime = GsonHelper.getAsInt(json, "processingTime");
             }
-            return new MeltingRecipe(id, output, inputs, processingTime);
+            int minimumHeat = 1;
+            if (GsonHelper.isValidNode(json, "minimumHeat")) {
+                minimumHeat = GsonHelper.getAsInt(json, "minimumHeat");
+            }
+            return new MeltingRecipe(id, output, input, processingTime);
         }
 
         @Override
         public MeltingRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
-            NonNullList<Ingredient> inputs = NonNullList.withSize(buf.readInt(), Ingredient.EMPTY);
-            NonNullList<FluidStack> output = NonNullList.create();
-
-            for (int i = 0; i < inputs.size(); i++) {
-                inputs.set(i, Ingredient.fromNetwork(buf));
-            }
-
-            int size = buf.readVarInt();
-            for (int i = 0; i < size; i++)
-                output.add(FluidStack.readFromPacket(buf));
+            Ingredient input = Ingredient.fromNetwork(buf);
+            FluidStack output = FluidStack.readFromPacket(buf);
 
 
             int processingTime = buf.readInt();
-            return new MeltingRecipe(id, output, inputs,processingTime);
+            return new MeltingRecipe(id, output, input,processingTime);
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buf, MeltingRecipe recipe) {
-            NonNullList<FluidStack> output = recipe.output;
-
-            buf.writeInt(recipe.getIngredients().size());
-            for (Ingredient ing : recipe.getIngredients()) {
-                ing.toNetwork(buf);
-            }
-            buf.writeVarInt(output.size());
-            output.forEach(o -> o.writeToPacket(buf));
-
-            //buf.writeItemStack(recipe.getResultItem(), false);
+            recipe.input.toNetwork(buf);
+            recipe.output.writeToPacket(buf);
             buf.writeInt(recipe.getProcessingTime());
         }
 
