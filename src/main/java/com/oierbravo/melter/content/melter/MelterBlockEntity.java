@@ -247,7 +247,8 @@ public class MelterBlockEntity extends BlockEntity  {
                 && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().getOutputFluidStack(),match.get().getOutputFluidAmount())
                 && MelterBlockEntity.hasEnoughOutputSpace(pBlockEntity.fluidTankHandler,match.get().getOutputFluidAmount())
                 && MelterBlockEntity.hasHeatSourceBelow(pBlockEntity)
-;
+                && MelterBlockEntity.hasEnoughHeat(pBlockEntity.getHeatSourceMultiplier(),match.get());
+
 
     }
 
@@ -274,6 +275,13 @@ public class MelterBlockEntity extends BlockEntity  {
         BlockPos pos = pBlockEntity.getBlockPos();
         BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
         return HeatSources.isHeatSource(below);
+    }
+
+    protected static boolean hasEnoughHeat(int heatLevel, MeltingRecipe recipe){
+        if(heatLevel >= recipe.getMinimumHeat()) {
+            return true;
+        }
+        return false;
     }
 
     @Override

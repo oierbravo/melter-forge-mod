@@ -26,16 +26,23 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
     private final Ingredient input;
 
     private final int processingTime;
+    private final int minimumHeat;
     public MeltingRecipe(ResourceLocation id, FluidStack output,
-                         Ingredient input, int processingTime) {
+                         Ingredient input, int processingTime, int minimumHeat) {
         this.id = id;
         this.output = output;
         this.input = input;
         this.processingTime = processingTime;
+        this.minimumHeat = minimumHeat;
         validate(id);
     }
     @Override
     public boolean matches(SimpleContainer pContainer, @NotNull Level pLevel) {
+        return input.test(pContainer.getItem(0));
+    }
+    public boolean matches(SimpleContainer pContainer, @NotNull Level pLevel, int heatLevel) {
+        if(heatLevel < this.minimumHeat)
+            return false;
         return input.test(pContainer.getItem(0));
     }
 
@@ -105,6 +112,10 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
         return getOutputFluidStack().getAmount();
     }
 
+    public int getMinimumHeat() {
+        return this.minimumHeat;
+    }
+
     public static class Type implements RecipeType<MeltingRecipe> {
         private Type() { }
         public static final Type INSTANCE = new Type();
@@ -129,7 +140,7 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
             if (GsonHelper.isValidNode(json, "minimumHeat")) {
                 minimumHeat = GsonHelper.getAsInt(json, "minimumHeat");
             }
-            return new MeltingRecipe(id, output, input, processingTime);
+            return new MeltingRecipe(id, output, input, processingTime, minimumHeat);
         }
 
         @Override
@@ -139,7 +150,8 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
 
 
             int processingTime = buf.readInt();
-            return new MeltingRecipe(id, output, input,processingTime);
+            int minimumHeat = buf.readInt();
+            return new MeltingRecipe(id, output, input, processingTime, minimumHeat);
         }
 
         @Override

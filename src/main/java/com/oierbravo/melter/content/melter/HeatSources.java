@@ -5,12 +5,12 @@ import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlo
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 public enum HeatSources implements StringRepresentable {
     NONE(0,"", "None"),
@@ -19,7 +19,7 @@ public enum HeatSources implements StringRepresentable {
     CAMPFIRE(2,"minecraft:campfire", "Campfire"),
     LAVA(4,"minecraft:lava", "Lava"),
     BLAZE_BURNER_INACTIVE(8,"create:blaze_burner:smouldering", "Blaze burner Inactive"),
-    BLAZE_BURNER_FADING(9,"create:blaze_burner:fading","Blaze burner Active"),
+    BLAZE_BURNER_FADING(9,"create:blaze_burner:fading","Blaze burner Fading"),
     BLAZE_BURNER_ACTIVE(10,"create:blaze_burner:kindled","Blaze burner Active"),
     BLAZE_BURNER_SUPERHEATED(16,"create:blaze_burner:seething","Blaze burner SUPERHEATED!");
     // CREATE HeatLevel: NONE, SMOULDERING, FADING, KINDLED, SEETHING,;
@@ -60,6 +60,13 @@ public enum HeatSources implements StringRepresentable {
         }
         return get(nameString);
     }
+
+    public static HeatSources get(int multiplier){
+        return Arrays.stream(HeatSources.values())
+                .filter(e -> e.multiplier >= multiplier )
+                .findFirst()
+                .orElse(HeatSources.NONE);
+    }
     public static boolean isHeatSource(BlockState blockState){
         if(Melter.withCreate && blockState.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)){
             return true;
@@ -70,6 +77,19 @@ public enum HeatSources implements StringRepresentable {
             return true;
         }
         return false;
+    }
+    public static ItemStack getItemStackFromMultiplier(int multiplier){
+        HeatSources heatSource = get(multiplier);
+        if(heatSource == HeatSources.NONE)
+            return ItemStack.EMPTY;
+
+        String resourceName = heatSource.getResourceName();
+        if(resourceName.matches("create:blaze_burner(.*)")){
+            resourceName = "create:blaze_burner";
+
+        }
+        ResourceLocation resourceLocation = ResourceLocation.tryParse(resourceName);
+        return new ItemStack(ForgeRegistries.ITEMS.getValue(resourceLocation));
     }
 
     @Override
