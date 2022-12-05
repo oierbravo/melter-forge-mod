@@ -1,20 +1,18 @@
 package com.oierbravo.melter.content.melter;
 
 import com.oierbravo.melter.config.ModConfigCommon;
+import com.oierbravo.melter.network.packets.FluidStackSyncS2CPacket;
+import com.oierbravo.melter.network.packets.ItemStackSyncS2CPacket;
+import com.oierbravo.melter.registrate.ModMessages;
 import com.oierbravo.melter.registrate.ModRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class MelterBlockEntity extends BlockEntity  {
 
@@ -65,7 +62,9 @@ public class MelterBlockEntity extends BlockEntity  {
             @Override
             protected void onContentsChanged() {
                 setChanged();
-                clientSync();
+                if(!level.isClientSide()) {
+                    ModMessages.sendToClients(new FluidStackSyncS2CPacket(this.fluid, worldPosition));
+                }
             }
 
         };
@@ -77,7 +76,10 @@ public class MelterBlockEntity extends BlockEntity  {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
-                clientSync();
+                if(!level.isClientSide()) {
+                    ModMessages.sendToClients(new ItemStackSyncS2CPacket(this.getStackInSlot(0), worldPosition));
+                }
+               // clientSync();
             }
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
@@ -119,34 +121,24 @@ public class MelterBlockEntity extends BlockEntity  {
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
 
         tag.put("input", inputItems.serializeNBT());
         fluidTankHandler.writeToNBT(tag);
-        tag.putInt("output", fluidTankHandler.getCapacity());
         tag.putInt("melter.progress", progress);
-        tag.putInt("melter.maxProgress", maxProgress);
-        super.saveAdditional(tag);
         updateTag = tag;
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        if (tag.contains("input")) {
-            inputItems.deserializeNBT(tag.getCompound("input"));
-        }
-        if (tag.contains("output")) {
-            fluidTankHandler.readFromNBT(tag);
-            fluidTankHandler.setCapacity(tag.getInt("output"));
-        }
+        inputItems.deserializeNBT(tag.getCompound("input"));
+        fluidTankHandler.readFromNBT(tag);
+        fluidTankHandler.setCapacity(FLUID_CAPACITY);
 
         if (tag.contains("melter.progress")) {
             progress = tag.getInt("melter.progress");
         }
-        if (tag.contains("melter.maxProgress")) {
-            maxProgress = tag.getInt("melter.maxProgress");
-        }
-
 
     }
 
@@ -185,7 +177,7 @@ public class MelterBlockEntity extends BlockEntity  {
         if (canCraftFluid(pBlockEntity)) {
             pBlockEntity.progress += pBlockEntity.getHeatSourceMultiplier();
             BlockEntity.setChanged(pLevel, pPos, pState);
-            pBlockEntity.clientSync();
+           // pBlockEntity.clientSync();
             pBlockEntity.maxProgress = pBlockEntity.getProcessingTime(pBlockEntity);
             if (pBlockEntity.progress > pBlockEntity.maxProgress) {
                 MelterBlockEntity.craftFluid(pBlockEntity);
@@ -193,7 +185,7 @@ public class MelterBlockEntity extends BlockEntity  {
         } else {
             pBlockEntity.resetProgress();
             BlockEntity.setChanged(pLevel, pPos, pState);
-            pBlockEntity.clientSync();
+            //pBlockEntity.clientSync();
         }
 
 
@@ -215,7 +207,7 @@ public class MelterBlockEntity extends BlockEntity  {
         BlockState newState = this.getBlockState().setValue(MelterBlock.HEAT_SOURCE,HeatSources.get(below));
         if(!pLastState.equals(newState)){
             this.getLevel().setBlock(pos,newState,Block.UPDATE_ALL);
-            clientSync();
+            //clientSync();
         }
     }
     private static void craftFluid(MelterBlockEntity pBlockEntity) {
@@ -237,7 +229,7 @@ public class MelterBlockEntity extends BlockEntity  {
 
         pBlockEntity.resetProgress();
         pBlockEntity.setChanged();
-        pBlockEntity.clientSync();
+        //pBlockEntity.clientSync();
     }
 
 
@@ -307,7 +299,7 @@ public class MelterBlockEntity extends BlockEntity  {
         this.load(Objects.requireNonNull(pkt.getTag()));
     }
 
-    public void clientSync() {
+    /*public void clientSync() {
         if (Objects.requireNonNull(this.getLevel()).isClientSide) {
             return;
         }
@@ -319,7 +311,7 @@ public class MelterBlockEntity extends BlockEntity  {
                 e.connection.send(updatePacket);
             }
         });
-    }
+    }*/
 
     public IFluidHandler getFluidHandler() {
         return fluidTankHandler;
@@ -328,9 +320,16 @@ public class MelterBlockEntity extends BlockEntity  {
     public IItemHandler getItemHandler() {
         return inputItems;
     }
+    public void setFluid(FluidStack fluidStack) {
+        fluidTankHandler.setFluid(fluidStack);
+    }
+
     public int getProgressPercent() {
         return this.progress * 100 / this.maxProgress;
     }
 
 
+    public void setItemStack(ItemStack itemStack) {
+        inputItems.setStackInSlot(0,itemStack);
+    }
 }
