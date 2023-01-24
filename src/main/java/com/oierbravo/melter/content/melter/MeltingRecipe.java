@@ -28,12 +28,14 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
     private final Ingredient input;
 
     private final int processingTime;
+    private final int heatLevel;
     public MeltingRecipe(ResourceLocation id, FluidStack output,
-                         Ingredient input, int processingTime) {
+                         Ingredient input, int processingTime, int heatLevel) {
         this.id = id;
         this.output = output;
         this.input = input;
         this.processingTime = processingTime;
+        this.heatLevel = heatLevel;
         validate(id);
     }
     @Override
@@ -85,6 +87,7 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
     public int  getProcessingTime() {
         return processingTime;
     }
+    public int getHeatLevel() {return heatLevel;}
 
     public FluidStack getOutputFluidStack() {
         return output;
@@ -127,11 +130,11 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
             if (GsonHelper.isValidNode(json, "processingTime")) {
                 processingTime = GsonHelper.getAsInt(json, "processingTime");
             }
-            int minimumHeat = 1;
+            int minimumHeat = 0;
             if (GsonHelper.isValidNode(json, "minimumHeat")) {
                 minimumHeat = GsonHelper.getAsInt(json, "minimumHeat");
             }
-            return new MeltingRecipe(id, output, input, processingTime);
+            return new MeltingRecipe(id, output, input, processingTime, minimumHeat);
         }
 
         @Override
@@ -141,7 +144,8 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
 
 
             int processingTime = buf.readInt();
-            return new MeltingRecipe(id, output, input,processingTime);
+            int minimumHeat = buf.readInt();
+            return new MeltingRecipe(id, output, input,processingTime, minimumHeat);
         }
 
         @Override
@@ -149,8 +153,7 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
             recipe.input.toNetwork(buf);
             recipe.output.writeToPacket(buf);
             buf.writeInt(recipe.getProcessingTime());
+            buf.writeInt(recipe.getHeatLevel());
         }
-
-
     }
 }
