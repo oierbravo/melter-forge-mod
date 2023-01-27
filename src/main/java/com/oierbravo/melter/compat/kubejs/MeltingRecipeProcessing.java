@@ -29,6 +29,7 @@ public class MeltingRecipeProcessing extends RecipeJS {
         //}
 
         json.addProperty("processingTime", 100);
+        json.addProperty("minimumHeat", 0);
     }
     public FluidIngredient parseOutputFluid(@Nullable Object o) {
 
@@ -54,7 +55,6 @@ public class MeltingRecipeProcessing extends RecipeJS {
 
     @Override
     public void deserialize() {
-
         inputIngredient = parseItemInput(json.get("input"));
         outputFluid = parseOutputFluid(json.get("output"));
     }
@@ -67,9 +67,6 @@ public class MeltingRecipeProcessing extends RecipeJS {
         if (serializeInputs) {
             json.add("input", inputIngredient.toJson());
         }
-
-
-
     }
 
     @Override

@@ -52,7 +52,6 @@ public class MelterBlockEntity extends BlockEntity  {
         super(pType, pWorldPosition, pBlockState);
         updateTag = getPersistentData();
         lastBlockState = this.getBlockState();
-
     }
 
     private FluidTank createFluidTank() {
@@ -206,8 +205,6 @@ public class MelterBlockEntity extends BlockEntity  {
         return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getDisplayName();
     }
 
-
-
     public void updateBlockStateFromNeighborUpdate(BlockState pLastState){
         BlockPos pos = this.getBlockPos();
         BlockState below = this.getLevel().getBlockState(pos.below());
@@ -249,15 +246,19 @@ public class MelterBlockEntity extends BlockEntity  {
         SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
         inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
 
-
         Optional<MeltingRecipe> match = ModRecipes.find(inputInventory,level);
+        if(match.isEmpty()) {
+            return false;
+        }
+
+        int heatLevel = match.get().getHeatLevel();
+
         return match.isPresent()
                 && MelterBlockEntity.hasEnoughInputItems(inputInventory,match.get().getIngredients().get(0).getItems()[0].getCount())
                 && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().getOutputFluidStack(),match.get().getOutputFluidAmount())
                 && MelterBlockEntity.hasEnoughOutputSpace(pBlockEntity.fluidTankHandler,match.get().getOutputFluidAmount())
                 && MelterBlockEntity.hasHeatSourceBelow(pBlockEntity)
-;
-
+                && MelterBlockEntity.hasMinimumHeatSource(heatLevel, pBlockEntity);
     }
 
     private boolean canProcess(ItemStack stack) {
@@ -285,12 +286,18 @@ public class MelterBlockEntity extends BlockEntity  {
         return HeatSources.isHeatSource(below);
     }
 
+    protected static boolean hasMinimumHeatSource(int minimum, MelterBlockEntity melter) {
+        BlockPos pos = melter.getBlockPos();
+        BlockState below = melter.getLevel().getBlockState(pos.below());
+        HeatSources source = HeatSources.get(below);
+        return source.ordinal() >= minimum;
+    }
+
     @Override
     public CompoundTag getUpdateTag() {
         this.saveAdditional(updateTag);
         return updateTag;
     }
-
 
     @Nullable
     @Override
