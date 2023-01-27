@@ -92,7 +92,10 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
         builder.addSlot(RecipeIngredientRole.OUTPUT, 113, 11)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB")) )
                 .addIngredients(ForgeTypes.FLUID_STACK, fluidList);
-
+        ItemStack minimumHeatItemStack = HeatSources.getItemStackFromMultiplier(recipe.getMinimumHeat());
+        builder.addSlot(RecipeIngredientRole.RENDER_ONLY,80,28)
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, new TextComponent("Minimum heat: "+ recipe.getMinimumHeat() )) )
+                .addItemStack(minimumHeatItemStack);
 
     }
 
@@ -103,7 +106,11 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
         //IDrawableAnimated arrow = getArrow(recipe);
         //arrow.draw(stack, 75, 12);
-        drawProcessingTime(recipe, stack, 81,35);
+
+        drawProcessingTime(recipe, stack, 81,4);
+        //drawRequiredHeat(recipe, stack, 30,35);
+
+
     }
     protected void drawProcessingTime(MeltingRecipe recipe, PoseStack poseStack, int x, int y) {
         int processingTime = recipe.getProcessingTime();

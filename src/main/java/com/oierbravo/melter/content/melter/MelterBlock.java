@@ -1,6 +1,5 @@
 package com.oierbravo.melter.content.melter;
 
-import com.oierbravo.melter.foundation.block.ITE;
 import com.oierbravo.melter.foundation.utility.Iterate;
 import com.oierbravo.melter.registrate.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -37,8 +36,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
-public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntity> {
+public class MelterBlock extends BaseEntityBlock {
     public static final EnumProperty<HeatSources> HEAT_SOURCE = EnumProperty.create("heatesource", HeatSources.class);
     private static final VoxelShape RENDER_SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
 
@@ -173,13 +171,8 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
             itemEntity.setItem(remainder);
     }
 
-    @Override
-    public Class<MelterBlockEntity> getTileEntityClass() {
-        return MelterBlockEntity.class;
-    }
 
-    @Override
-    public BlockEntityType<? extends MelterBlockEntity> getTileEntityType() {
-        return ModBlockEntities.MELTER_BLOCK_ENTITY.get();
+    protected MelterBlockEntity getTileEntity(BlockGetter worldIn, BlockPos pos) {
+        return (MelterBlockEntity) worldIn.getBlockEntity(pos);
     }
 }

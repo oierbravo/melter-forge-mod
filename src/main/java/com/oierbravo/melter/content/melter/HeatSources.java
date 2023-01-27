@@ -66,6 +66,19 @@ public enum HeatSources implements StringRepresentable {
         }
         return false;
     }
+    public static ItemStack getItemStackFromMultiplier(int multiplier){
+        HeatSources heatSource = get(multiplier);
+        if(heatSource == HeatSources.NONE)
+            return ItemStack.EMPTY;
+
+        String resourceName = heatSource.getResourceName();
+        if(resourceName.matches("create:blaze_burner(.*)")){
+            resourceName = "create:blaze_burner";
+
+        }
+        ResourceLocation resourceLocation = ResourceLocation.tryParse(resourceName);
+        return new ItemStack(ForgeRegistries.ITEMS.getValue(resourceLocation));
+    }
 
     @Override
     public String getSerializedName() {

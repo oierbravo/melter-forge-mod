@@ -120,34 +120,24 @@ public class MelterBlockEntity extends BlockEntity  {
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
 
         tag.put("input", inputItems.serializeNBT());
         fluidTankHandler.writeToNBT(tag);
-        tag.putInt("output", fluidTankHandler.getCapacity());
         tag.putInt("melter.progress", progress);
-        tag.putInt("melter.maxProgress", maxProgress);
-        super.saveAdditional(tag);
         updateTag = tag;
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        if (tag.contains("input")) {
-            inputItems.deserializeNBT(tag.getCompound("input"));
-        }
-        if (tag.contains("output")) {
-            fluidTankHandler.readFromNBT(tag);
-            fluidTankHandler.setCapacity(tag.getInt("output"));
-        }
+        inputItems.deserializeNBT(tag.getCompound("input"));
+        fluidTankHandler.readFromNBT(tag);
+        fluidTankHandler.setCapacity(FLUID_CAPACITY);
 
         if (tag.contains("melter.progress")) {
             progress = tag.getInt("melter.progress");
         }
-        if (tag.contains("melter.maxProgress")) {
-            maxProgress = tag.getInt("melter.maxProgress");
-        }
-
 
     }
 
@@ -256,7 +246,8 @@ public class MelterBlockEntity extends BlockEntity  {
                 && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().getOutputFluidStack(),match.get().getOutputFluidAmount())
                 && MelterBlockEntity.hasEnoughOutputSpace(pBlockEntity.fluidTankHandler,match.get().getOutputFluidAmount())
                 && MelterBlockEntity.hasHeatSourceBelow(pBlockEntity)
-;
+                && MelterBlockEntity.hasEnoughHeat(pBlockEntity.getHeatSourceMultiplier(),match.get());
+
 
     }
 
@@ -283,6 +274,13 @@ public class MelterBlockEntity extends BlockEntity  {
         BlockPos pos = pBlockEntity.getBlockPos();
         BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
         return HeatSources.isHeatSource(below);
+    }
+
+    protected static boolean hasEnoughHeat(int heatLevel, MeltingRecipe recipe){
+        if(heatLevel >= recipe.getMinimumHeat()) {
+            return true;
+        }
+        return false;
     }
 
     @Override

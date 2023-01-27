@@ -27,6 +27,7 @@ public class MeltingRecipeProcessing extends RecipeJS {
         //for (var input : ListJS.orSelf(args.get(1))) {
         //    inputItems.add(parseIngredientItem(input));
         //}
+        json.addProperty("minimumHeat", 1);
 
         json.addProperty("processingTime", 100);
     }
