@@ -2,6 +2,7 @@ package com.oierbravo.melter.compat.jei;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.oierbravo.melter.Melter;
+import com.oierbravo.melter.content.melter.HeatSources;
 import com.oierbravo.melter.content.melter.MeltingRecipe;
 import com.oierbravo.melter.registrate.ModBlocks;
 import com.oierbravo.melter.registrate.ModGUITextures;
@@ -92,7 +93,10 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
         builder.addSlot(RecipeIngredientRole.OUTPUT, 113, 11)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB")) )
                 .addIngredients(ForgeTypes.FLUID_STACK, fluidList);
-
+        ItemStack minimumHeatItemStack = HeatSources.getItemStackFromMultiplier(recipe.getHeatLevel());
+        builder.addSlot(RecipeIngredientRole.RENDER_ONLY,80,28)
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal("Minimum heat: "+ recipe.getHeatLevel() )) )
+                .addItemStack(minimumHeatItemStack);
 
     }
 
@@ -101,9 +105,9 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
         IRecipeCategory.super.draw(recipe, recipeSlotsView, stack, mouseX, mouseY);
         ModGUITextures.JEI_SHORT_ARROW.render(stack, 75, 12);
 
-        //IDrawableAnimated arrow = getArrow(recipe);
-        //arrow.draw(stack, 75, 12);
-        drawProcessingTime(recipe, stack, 81,35);
+        drawProcessingTime(recipe, stack, 81,4);
+
+
     }
     protected void drawProcessingTime(MeltingRecipe recipe, PoseStack poseStack, int x, int y) {
         int processingTime = recipe.getProcessingTime();

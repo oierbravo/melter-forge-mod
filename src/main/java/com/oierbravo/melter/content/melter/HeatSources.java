@@ -3,9 +3,13 @@ package com.oierbravo.melter.content.melter;
 import com.oierbravo.melter.Melter;
 import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
 
@@ -42,6 +46,12 @@ public enum HeatSources implements StringRepresentable {
         return resourceName;
     }
 
+    public static HeatSources get(int minimumHeat){
+        return Arrays.stream(HeatSources.values())
+                .filter(e -> e.multiplier > minimumHeat)
+                .findFirst()
+                .orElse(HeatSources.NONE);
+    }
     public static HeatSources get(String resourceName){
         return Arrays.stream(HeatSources.values())
                 .filter(e -> e.resourceName.equals(resourceName))
@@ -65,6 +75,19 @@ public enum HeatSources implements StringRepresentable {
             return true;
         }
         return false;
+    }
+    public static ItemStack getItemStackFromMultiplier(int multiplier){
+        HeatSources heatSource = get(multiplier);
+        if(heatSource == HeatSources.NONE)
+            return ItemStack.EMPTY;
+
+        String resourceName = heatSource.getResourceName();
+        if(!resourceName.matches("create:blocks/blaze_burner(.*)")){
+            return new ItemStack(Items.TORCH);
+        }
+        resourceName = "create:blaze_burner";
+        ResourceLocation resourceLocation = ResourceLocation.tryParse(resourceName);
+        return new ItemStack(ForgeRegistries.ITEMS.getValue(resourceLocation));
     }
 
     @Override
