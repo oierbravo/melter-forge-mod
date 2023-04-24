@@ -79,7 +79,7 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
                 LivingEntity entity = ((LivingEntity) pEntity);
                 if(pState.hasProperty(MelterBlock.HEAT_SOURCE) && pState.getValue(MelterBlock.HEAT_SOURCE) != HeatSources.NONE){
                     //entity.hurt(DamageSource.HOT_FLOOR,0.1f * pState.getValue(MelterBlock.HEAT_SOURCE).getMultiplier());
-                    entity.hurt(DamageSource.HOT_FLOOR,0.4f* pState.getValue(MelterBlock.HEAT_SOURCE).getMultiplier());
+                    entity.hurt(DamageSource.HOT_FLOOR,0.4f* pState.getValue(MelterBlock.HEAT_SOURCE).multiplier);
                 }
             }
         }

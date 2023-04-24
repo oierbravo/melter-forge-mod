@@ -88,14 +88,14 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
 
             NonNullList<FluidStack> fluidList = NonNullList.create();
-            fluidList.add(recipe.getOutput());
+            fluidList.add(recipe.getOutputFluidStack());
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, 113, 11)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB")) )
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutputFluidStack().getAmount() + "mB")) )
                 .addIngredients(ForgeTypes.FLUID_STACK, fluidList);
-        ItemStack minimumHeatItemStack = HeatSources.getItemStackFromMultiplier(recipe.getHeatLevel());
+        ItemStack minimumHeatItemStack = HeatSources.getItemStackFromMultiplier(recipe.heatLevel);
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY,80,28)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal("Minimum heat: "+ recipe.getHeatLevel() )) )
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal("Minimum heat: "+ recipe.heatLevel)) )
                 .addItemStack(minimumHeatItemStack);
 
     }
@@ -110,7 +110,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
     }
     protected void drawProcessingTime(MeltingRecipe recipe, PoseStack poseStack, int x, int y) {
-        int processingTime = recipe.getProcessingTime();
+        int processingTime = recipe.processingTime;
         if (processingTime > 0) {
             int cookTimeSeconds = processingTime / 20;
             MutableComponent timeString = Component.translatable("gui.jei.category.smelting.time.seconds", cookTimeSeconds);

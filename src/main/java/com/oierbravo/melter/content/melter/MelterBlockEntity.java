@@ -199,10 +199,10 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
     public int getHeatSourceMultiplier() {
-        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getMultiplier();
+        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).multiplier;
     }
     public String getHeatSourceDisplayName() {
-        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getDisplayName();
+        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).displayName;
     }
 
     public void updateBlockStateFromNeighborUpdate(BlockState pLastState){
@@ -251,7 +251,7 @@ public class MelterBlockEntity extends BlockEntity  {
             return false;
         }
 
-        int heatLevel = match.get().getHeatLevel();
+        int heatLevel = match.get().heatLevel;
 
         return match.isPresent()
                 && MelterBlockEntity.hasEnoughInputItems(inputInventory,match.get().getIngredients().get(0).getItems()[0].getCount())
