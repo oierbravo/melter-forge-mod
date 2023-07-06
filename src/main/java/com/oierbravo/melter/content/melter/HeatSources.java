@@ -1,7 +1,7 @@
 package com.oierbravo.melter.content.melter;
 
 import com.oierbravo.melter.Melter;
-import com.simibubi.create.content.contraptions.processing.burner.BlazeBurnerBlock;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
@@ -14,11 +14,15 @@ public enum HeatSources implements StringRepresentable {
     TORCH(1,"Block{minecraft:torch}", "Torch"),
     WALL_TORCH(1,"Block{minecraft:torch}", "Torch"),
     CAMPFIRE(2,"Block{minecraft:campfire}", "Campfire"),
-    LAVA(4,"Block{minecraft:lava}", "Lava"),
-    BLAZE_BURNER_INACTIVE(8,"create:blocks/blaze_burner:smouldering", "BB.Inactive"),
-    BLAZE_BURNER_FADING(9,"create:blocks/blaze_burner:fading","BB.Active"),
-    BLAZE_BURNER_ACTIVE(10,"create:blocks/blaze_burner:kindled","BB.Active"),
-    BLAZE_BURNER_SUPERHEATED(16,"create:blocks/blaze_burner:seething","SUPERHEATED!");
+    SOUL_CAMPFIRE(2,"Block{minecraft:soul_campfire}", "Soul Campfire"),
+    LAVA(3,"Block{minecraft:lava}", "Lava"),
+    BLAZE_BURNER_INACTIVE(0,"create:blocks/blaze_burner:smouldering", "Blaze Inactive"),
+    BLAZE_BURNER_FADING(1,"create:blocks/blaze_burner:fading","Blaze Active"),
+    BLAZE_BURNER_ACTIVE(5,"create:blocks/blaze_burner:kindled","Blaze Active"),
+    BLAZE_BURNER_SUPERHEATED(8,"create:blocks/blaze_burner:seething","Blaze SUPERHEATED!");
+
+
+
     // CREATE HeatLevel: NONE, SMOULDERING, FADING, KINDLED, SEETHING,;
     private int multiplier;
     private String resourceName;

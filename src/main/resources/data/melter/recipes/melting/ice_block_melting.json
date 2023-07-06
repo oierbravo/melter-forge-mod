@@ -1,0 +1,12 @@
+{
+  "type": "melter:melting",
+  "input": {
+    "item": "minecraft:ice",
+    "count": 1
+  },
+  "output": {
+    "fluid": "minecraft:water",
+    "amount": 500
+  },
+  "processingTime": 1000
+}

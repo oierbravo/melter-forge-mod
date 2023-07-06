@@ -1,30 +1,50 @@
 modLoader="javafml"
 loaderVersion="[43,)"
-issueTrackerURL="https://github.com/oierbravo/melter-forge-mod/issues"
+issueTrackerURL="https://github.com/nanonestor/melter-block/issues"
 license="MIT"
 
-[[mods]] #mandatory
-modId="melter" #mandatory
-version="${file.jarVersion}" #mandatory
-displayName="Melter" #mandatory
-logoFile="logo.png" #optional
-credits="Code inspirtation from the amazing Create mod" #optional
-authors="oierbravo" #optional
+[[mods]]
+modId="melter"
+version="${file.jarVersion}"
+displayName="Melter"
+logoFile="logo.png"
+credits="Code inspirtation from the amazing Create mod"
+authors="nanonestor"
 description='''
 A simple melter block that turn blocks into liquid.
-
 Intended for modpacks. Use as you see fit.
+-
+Recipes easily added via datapack or KubeJS - See project Curseforge website or Github for details.
+-
+https://legacy.curseforge.com/minecraft/mc-mods/melter-block
+-
+https://github.com/nanonestor/melter-block
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.melter]] #optional
+[[dependencies.melter]]
     modId="forge"
     mandatory=true
-    versionRange="[43.0.0,)"
+    versionRange="[43.2.4,)"
     ordering="NONE"
     side="BOTH"
+
 [[dependencies.melter]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.19.2,1.20)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.melter]]
+    modId="jei"
+    mandatory=false
+    versionRange="[11.2.0.254,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.melter]]
+    modId="create"
+    mandatory=false
+    versionRange="[0.5.1,)"
     ordering="NONE"
     side="BOTH"

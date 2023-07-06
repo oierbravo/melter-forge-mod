@@ -1,5 +1,5 @@
-// 1.19.2	2022-09-26T21:41:35.208363301	Registrate Provider for melter [Recipes, Advancements, Loot tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
-6fd9316bfa35ae8a51b998f3cf23f52d90a0aa2f assets/melter/blockstates/melter.json
+// 1.19.2	2023-07-04T20:27:55.1360653	Registrate Provider for melter [Recipes, Advancements, Loot tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
+284768dd070e6f2c210a3d728501b60176692fa9 assets/melter/blockstates/melter.json
 cc1f24cc79281f5151efb49802e52c2088e3a280 assets/melter/lang/en_ud.json
 87985a8f0839f6dd65b96930c6b6973590743b5e assets/melter/lang/en_us.json
 0b5a8cc816c9eecde5f718b39d5244455a6b61a7 assets/melter/models/item/melter.json

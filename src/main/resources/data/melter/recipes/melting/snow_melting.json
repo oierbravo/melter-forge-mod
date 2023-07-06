@@ -1,0 +1,12 @@
+{
+  "type": "melter:melting",
+  "input": {
+    "item": "minecraft:snow_block",
+    "count": 1
+  },
+  "output": {
+    "fluid": "minecraft:water",
+    "amount": 250
+  },
+  "processingTime": 1000
+}

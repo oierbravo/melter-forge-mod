@@ -1,3 +1,5 @@
+/*
+
 package com.oierbravo.melter.compat.kubejs;
 
 import com.simibubi.create.foundation.fluid.FluidIngredient;
@@ -44,25 +46,18 @@ public class MeltingRecipeProcessing extends RecipeJS {
             throw new RecipeExceptionJS("" + o + " is not a valid result!");
         }
         throw new RecipeExceptionJS("" + o + " is not a valid result!");
-
-        /*FluidStackJS result = FluidStackJS.of(o);
-        if (result != null && !result.isEmpty()) {
-            return result;
-        } else {
-            throw new RecipeExceptionJS("" + o + " is not a valid result!");
-        }*/
     }
 
     @Override
     public void deserialize() {
         inputIngredient = parseItemInput(json.get("input"));
-        outputFluid = parseOutputFluid(json.get("output"));
+        outputFluid = parseOutputFluid(json.getAsJsonArray("output"));
     }
 
     @Override
     public void serialize() {
         if (serializeOutputs) {
-            json.add("output",outputFluid.serialize());
+            json.add("output", outputFluid.serialize());
         }
         if (serializeInputs) {
             json.add("input", inputIngredient.toJson());
@@ -106,3 +101,4 @@ public class MeltingRecipeProcessing extends RecipeJS {
     }
 
 }
+*/
