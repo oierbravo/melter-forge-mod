@@ -19,7 +19,7 @@ Intended for modpacks. Use as you see fit.
 [[dependencies.melter]] #optional
     modId="forge"
     mandatory=true
-    versionRange="[43.0.0,)"
+    versionRange="[43.2.3,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.melter]]
