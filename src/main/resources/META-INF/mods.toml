@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[43,)"
+loaderVersion="[47,)"
 issueTrackerURL="https://github.com/oierbravo/melter-forge-mod/issues"
 license="MIT"
 
@@ -19,12 +19,12 @@ Intended for modpacks. Use as you see fit.
 [[dependencies.melter]] #optional
     modId="forge"
     mandatory=true
-    versionRange="[43.2.3,)"
+    versionRange="[47.0.0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.melter]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.2,1.20)"
+    versionRange="[1.20,1.21)"
     ordering="NONE"
     side="BOTH"

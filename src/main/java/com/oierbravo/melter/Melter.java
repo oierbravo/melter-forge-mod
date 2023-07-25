@@ -7,8 +7,6 @@ import com.oierbravo.melter.registrate.*;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
@@ -28,7 +26,7 @@ public class Melter
 
     public static IEventBus modEventBus;
 
-    public static final NonNullSupplier<Registrate> registrate = NonNullSupplier.lazy(() -> Registrate.create(MODID).creativeModeTab(ModCreativeModeTab::new, DISPLAY_NAME));
+    public static final NonNullSupplier<Registrate> REGISTRATE = NonNullSupplier.lazy(() -> Registrate.create(MODID));
 
     public static final boolean withCreate = ModList.get().isLoaded("create");
 
@@ -44,6 +42,7 @@ public class Melter
 
         ModBlocks.register();
         ModBlockEntities.register();
+        ModCreativeTabs.register(modEventBus);
         ModRecipes.register(modEventBus);
         ModMessages.register();
         Config.register();
@@ -59,20 +58,10 @@ public class Melter
 
 
     public static Registrate registrate() {
-        return registrate.get();
+        return REGISTRATE.get();
     }
 
-    private static class ModCreativeModeTab extends CreativeModeTab {
 
-        public ModCreativeModeTab() {
-            super(DISPLAY_NAME);
-        }
-
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(ModBlocks.MELTER.get());
-        }
-    }
     public static ResourceLocation asResource(String path) {
         return new ResourceLocation(MODID, path);
     }

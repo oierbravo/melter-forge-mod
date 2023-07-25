@@ -4,16 +4,13 @@ import com.oierbravo.melter.content.melter.MelterBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-public class ProgressComponentProvider  implements IBlockComponentProvider, IServerDataProvider<BlockEntity> {
+public class ProgressComponentProvider  implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
@@ -34,17 +31,19 @@ public class ProgressComponentProvider  implements IBlockComponentProvider, ISer
     }
 
     @Override
-    public void appendServerData(CompoundTag compoundTag, ServerPlayer serverPlayer, Level level, BlockEntity blockEntity, boolean b) {
-        if(blockEntity instanceof MelterBlockEntity){
+    public ResourceLocation getUid() {
+        return MelterPlugin.MELTER_DATA;
+    }
+
+    @Override
+    public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
+        MelterBlockEntity blockEntity = (MelterBlockEntity) blockAccessor.getBlockEntity();
+
+        if(blockEntity != null){
             MelterBlockEntity melter = (MelterBlockEntity) blockEntity;
             compoundTag.putInt("melter.progress",melter.getProgressPercent());
             compoundTag.putInt("melter.multiplier",melter.getHeatSourceMultiplier());
             compoundTag.putString("melter.displayName",melter.getHeatSourceDisplayName());
         }
-    }
-
-    @Override
-    public ResourceLocation getUid() {
-        return MelterPlugin.MELTER_DATA;
     }
 }

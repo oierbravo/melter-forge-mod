@@ -1,11 +1,10 @@
 package com.oierbravo.melter.registrate;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.gui.UIRenderHelper;
 import com.simibubi.create.foundation.gui.element.ScreenElement;
 import com.simibubi.create.foundation.utility.Color;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -45,20 +44,15 @@ public enum ModGUITextures implements ScreenElement {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack ms, int x, int y) {
+    public void render(GuiGraphics graphics, int x, int y) {
         this.bind();
-        GuiComponent.blit(ms, x, y, 0, (float)this.startX, (float)this.startY, this.width, this.height, 256, 256);
+        graphics.blit(location, x, y, 0, (float)this.startX, (float)this.startY, this.width, this.height, 256, 256);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack ms, int x, int y, GuiComponent component) {
-        this.bind();
-        component.blit(ms, x, y, this.startX, this.startY, this.width, this.height);
-    }
 
     @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack ms, int x, int y, Color c) {
+    public void render(GuiGraphics graphics, int x, int y, Color c) {
         this.bind();
-        UIRenderHelper.drawColoredTexture(ms, c, x, y, this.startX, this.startY, this.width, this.height);
+        UIRenderHelper.drawColoredTexture(graphics, c, x, y, this.startX, this.startY, this.width, this.height);
     }
 }

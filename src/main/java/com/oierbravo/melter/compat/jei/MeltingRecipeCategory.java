@@ -1,6 +1,5 @@
 package com.oierbravo.melter.compat.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.content.melter.HeatSources;
 import com.oierbravo.melter.content.melter.MeltingRecipe;
@@ -18,6 +17,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -52,7 +52,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
             }
 
             @Override
-            public void draw(PoseStack poseStack, int xOffset, int yOffset) {
+            public void draw( GuiGraphics graphics, int xOffset, int yOffset) {
 
             }
         };
@@ -101,22 +101,22 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
     }
 
     @Override
-    public void draw(MeltingRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
-        IRecipeCategory.super.draw(recipe, recipeSlotsView, stack, mouseX, mouseY);
-        ModGUITextures.JEI_SHORT_ARROW.render(stack, 75, 12);
+    public void draw(MeltingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+        IRecipeCategory.super.draw(recipe, recipeSlotsView, graphics, mouseX, mouseY);
+        ModGUITextures.JEI_SHORT_ARROW.render(graphics, 75, 12);
 
-        drawProcessingTime(recipe, stack, 81,4);
+        drawProcessingTime(recipe, graphics, 81,4);
 
 
     }
-    protected void drawProcessingTime(MeltingRecipe recipe, PoseStack poseStack, int x, int y) {
+    protected void drawProcessingTime(MeltingRecipe recipe, GuiGraphics graphics, int x, int y) {
         int processingTime = recipe.getProcessingTime();
         if (processingTime > 0) {
             int cookTimeSeconds = processingTime / 20;
             MutableComponent timeString = Component.translatable("gui.jei.category.smelting.time.seconds", cookTimeSeconds);
             Minecraft minecraft = Minecraft.getInstance();
             Font fontRenderer = minecraft.font;
-            fontRenderer.draw(poseStack, timeString, x, y, 0xFF808080);
+            graphics.drawString(fontRenderer,timeString,x,y,0xFF808080,false);
         }
     }
 }

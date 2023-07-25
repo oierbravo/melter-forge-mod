@@ -2,24 +2,24 @@ package com.oierbravo.melter.content.melter;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntity> {
     public MelterBlockRenderer(BlockEntityRendererProvider.Context context) {
@@ -42,7 +42,7 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
             pPoseStack.pushPose();
             pPoseStack.translate(0.5d,  0.8d * percent, 0.5d);
 
-            this.renderBlock(pPoseStack,pBufferSource,pPackedLight,pPackedOverlay,itemStack);
+            this.renderBlock(pPoseStack,pBufferSource,pPackedLight,pPackedOverlay,itemStack,pBlockEntity);
             pPoseStack.popPose();
         }
 
@@ -105,9 +105,9 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
                 .endVertex();
     }
 
-    protected void renderBlock(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack stack) {
+    protected void renderBlock(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack stack, MelterBlockEntity entity) {
         Minecraft.getInstance()
                 .getItemRenderer()
-                .renderStatic(stack, ItemTransforms.TransformType.GROUND, light, overlay, ms, buffer, 0);
+                .renderStatic(stack, ItemDisplayContext.GROUND, light, overlay, ms, buffer,  entity.getLevel(),0);
     }
 }
