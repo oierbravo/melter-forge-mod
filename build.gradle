@@ -23,6 +23,8 @@ apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
 
+jarJar.enable()
+
 group = "com.${author}.${modid}"
 version = "${minecraft_version}-${mod_version}"
 archivesBaseName = modid
