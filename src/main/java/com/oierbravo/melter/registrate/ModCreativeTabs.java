@@ -1,7 +1,6 @@
 package com.oierbravo.melter.registrate;
 
 import com.oierbravo.melter.Melter;
-import com.simibubi.create.AllCreativeModeTabs;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -21,8 +20,7 @@ public class ModCreativeTabs {
 
     public static final RegistryObject<CreativeModeTab> MAIN_TAB = TAB_REGISTER.register("main",
             () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.createsifter:main"))
-                    .withTabsBefore(AllCreativeModeTabs.BUILDING_BLOCKS_TAB.getId())
+                    .title(Component.translatable("itemGroup.melter:main"))
                     .icon(ModBlocks.MELTER::asStack)
                     .displayItems((pParameters, pOutput) -> {
                         for (RegistryEntry<Block> entry : Melter.registrate().getAll(Registries.BLOCK)) {

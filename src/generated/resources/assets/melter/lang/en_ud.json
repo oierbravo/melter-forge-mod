@@ -1,10 +1,11 @@
 {
   "block.melter.melter": "ɹǝʇןǝW",
   "config.jade.plugin_melter.melter_data": "ɐʇɐp ɹǝʇןǝW",
-  "itemGroup.Melter": "ɹǝʇןǝW",
+  "itemGroup.melter:main": "ɹǝʇןǝW",
   "melter.block.display": "ɹǝʇןǝW",
   "melter.tooltip.multiplier": "%d :ɹǝıןdıʇןnɯ ʇɐǝH",
   "melter.tooltip.multiplier_none": "¡pǝʇɐǝɥ ʇoNɔ§",
+  "melter.tooltip.oneline": "%dx9§ %s :ʇɐǝH",
   "melter.tooltip.progress": "%d%% :ssǝɹboɹԀ",
   "melting.recipe": "buıʇןǝW"
 }

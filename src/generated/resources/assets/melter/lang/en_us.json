@@ -1,10 +1,11 @@
 {
   "block.melter.melter": "Melter",
   "config.jade.plugin_melter.melter_data": "Melter data",
-  "itemGroup.Melter": "Melter",
+  "itemGroup.melter:main": "Melter",
   "melter.block.display": "Melter",
   "melter.tooltip.multiplier": "Heat multiplier: %d",
   "melter.tooltip.multiplier_none": "§cNot heated!",
+  "melter.tooltip.oneline": "Heat: %s §6x%d",
   "melter.tooltip.progress": "Progress: %d%%",
   "melting.recipe": "Melting"
 }

@@ -71,7 +71,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'createsifter', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources')
+            args '--mod', 'melter', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources')
             mods {
                 "${modid}" {
                     source sourceSets.main
@@ -81,10 +81,10 @@ minecraft {
         }
         gameTestServer {
             workingDirectory project.file('run/gametest')
-            arg '-mixin.config=create.mixins.json'
+            arg '-mixin.config=melter.mixins.json'
             property 'forge.logging.console.level', 'info'
             mods {
-                create {
+                "${modid}" {
                     source sourceSets.main
                 }
             }
@@ -177,6 +177,7 @@ dependencies {
     }
 
     //annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: "[MC1.20,MC1.21)")
 
 }
 
@@ -213,6 +214,9 @@ tasks.withType(JavaCompile).configureEach {
 }
 compileJava {
     options.compilerArgs = ['-Xdiags:verbose']
+}
+reobf {
+    jarJar { }
 }
 
 
