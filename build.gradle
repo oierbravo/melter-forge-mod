@@ -71,7 +71,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'createsifter', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources')
+            args '--mod', 'melter', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources')
             mods {
                 "${modid}" {
                     source sourceSets.main
@@ -81,10 +81,10 @@ minecraft {
         }
         gameTestServer {
             workingDirectory project.file('run/gametest')
-            arg '-mixin.config=create.mixins.json'
+            arg '-mixin.config=melter.mixins.json'
             property 'forge.logging.console.level', 'info'
             mods {
-                create {
+                melter {
                     source sourceSets.main
                 }
             }
@@ -174,6 +174,17 @@ dependencies {
 
     if (System.getProperty('idea.sync.active') != 'true') {
         annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
+    }
+
+    if (ct_enable.toBoolean()) {
+        def minecraftVersion= "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+        def ctDep = "com.blamejared.crafttweaker:CraftTweaker-forge-${ct_minecraft_version}:${ct_version}"
+        compileOnly(ctDep)
+        runtimeOnly(fg.deobf(ctDep))
+
+        annotationProcessor "com.blamejared.crafttweaker:Crafttweaker_Annotation_Processors:${ct_annotation_processor_version}"
+        annotationProcessor minecraftVersion
+        annotationProcessor ctDep
     }
 
     //annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
