@@ -12,6 +12,8 @@ import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.IProgressStyle;
 
 public class ProgressComponentProvider  implements IBlockComponentProvider, IServerDataProvider<BlockEntity> {
 
@@ -20,12 +22,13 @@ public class ProgressComponentProvider  implements IBlockComponentProvider, ISer
         //CompoundTag serverData = accessor.getServerData();
         if (accessor.getServerData().contains("melter.progress")) {
             int progress = accessor.getServerData().getInt("melter.progress");
+            IElementHelper elementHelper = tooltip.getElementHelper();
+            IProgressStyle progressStyle = elementHelper.progressStyle();
             if(progress > 0)
-                tooltip.add(Component.translatable("melter.tooltip.progress", progress));
+                tooltip.add(elementHelper.progress((float)progress / 100, Component.translatable("melter.tooltip.progress", progress), progressStyle,elementHelper.borderStyle()));
             int heatMultiplier = accessor.getServerData().getInt("melter.multiplier");
             if(heatMultiplier > 0) {
-                tooltip.add(Component.translatable("melter.tooltip.multiplier", heatMultiplier));
-                tooltip.add(Component.literal("Heat source: " + accessor.getServerData().getString("melter.displayName")));
+                tooltip.add(Component.translatable("melter.tooltip.oneline",accessor.getServerData().getString("melter.displayName"), heatMultiplier));
             } else {
                 tooltip.add(Component.translatable("melter.tooltip.multiplier_none"));
             }

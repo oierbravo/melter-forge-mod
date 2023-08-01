@@ -160,6 +160,9 @@ repositories {
             includeGroup "dev.architectury"
         }
     }
+    maven {
+        url "https://maven.blamejared.com"
+    }
 }
 
 
@@ -167,7 +170,9 @@ dependencies {
     implementation 'org.jetbrains:annotations:22.0.0'
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: '[MC1.18.2-1.1.3,)') {
+    jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: "[MC1.19,MC1.20)")
+
+    jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: '[MC1.19-1.1.5,)') {
         jarJar.pin(it, project.registrate_version)
     }
     implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
@@ -185,6 +190,16 @@ dependencies {
     implementation fg.deobf("com.simibubi.create:create-${create_minecraft_version}:${create_version}:slim") { transitive = false }
     implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-${flywheel_minecraft_version}:${flywheel_version}")
 
+    if (ct_enabled.toBoolean()) {
+        def minecraftVersion= "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+        def ctDep = "com.blamejared.crafttweaker:CraftTweaker-forge-${ct_minecraft_version}:${ct_version}"
+        compileOnly(ctDep)
+        runtimeOnly(fg.deobf(ctDep))
+
+        annotationProcessor "com.blamejared.crafttweaker:Crafttweaker_Annotation_Processors:${ct_annotation_processor_version}"
+        annotationProcessor minecraftVersion
+        annotationProcessor ctDep
+    }
 
     //annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
@@ -201,6 +216,7 @@ jar {
                 "Implementation-Version"  : project.version,
                 "Implementation-Vendor"   : author,
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs"            : "${modid}.mixins.json"
         ])
     }
 }

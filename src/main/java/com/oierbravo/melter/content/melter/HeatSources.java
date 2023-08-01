@@ -19,9 +19,9 @@ public enum HeatSources implements StringRepresentable {
     WALL_TORCH(1,"Block{minecraft:torch}", "Torch"),
     CAMPFIRE(2,"Block{minecraft:campfire}", "Campfire"),
     LAVA(4,"Block{minecraft:lava}", "Lava"),
-    BLAZE_BURNER_INACTIVE(8,"create:blocks/blaze_burner:smouldering", "BB.Inactive"),
-    BLAZE_BURNER_FADING(9,"create:blocks/blaze_burner:fading","BB.Active"),
-    BLAZE_BURNER_ACTIVE(10,"create:blocks/blaze_burner:kindled","BB.Active"),
+    BLAZE_BURNER_INACTIVE(8,"create:blocks/blaze_burner:smouldering", "Blaze burner"),
+    BLAZE_BURNER_FADING(9,"create:blocks/blaze_burner:fading","Blaze burner"),
+    BLAZE_BURNER_ACTIVE(10,"create:blocks/blaze_burner:kindled","Blaze burner"),
     BLAZE_BURNER_SUPERHEATED(16,"create:blocks/blaze_burner:seething","SUPERHEATED!");
     // CREATE HeatLevel: NONE, SMOULDERING, FADING, KINDLED, SEETHING,;
     private int multiplier;
