@@ -1,21 +1,25 @@
 package com.oierbravo.melter.compat.jei;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.content.melter.HeatSources;
 import com.oierbravo.melter.content.melter.MeltingRecipe;
 import com.oierbravo.melter.registrate.ModBlocks;
-import com.oierbravo.melter.registrate.ModGUITextures;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.common.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.NonNullList;
@@ -30,16 +34,21 @@ import javax.annotation.Nonnull;
 
 public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
     public final static ResourceLocation UID = new ResourceLocation(Melter.MODID, "melting");
-    public final static ResourceLocation ARROW_TEXTURE =
-            new ResourceLocation(Melter.MODID, "textures/gui/arrow.png");
+    private final LoadingCache<Integer, IDrawableAnimated> cachedArrows;
 
     private final IDrawable background;
     private final IDrawable icon;
-    //protected final IDrawableAnimated arrow;
-    //private final LoadingCache<Integer, IDrawableAnimated> cachedArrows;
 
     public MeltingRecipeCategory(IGuiHelper helper) {
-        //this.background = helper.createDrawable(TEXTURE, 0, 0, 176, 59);
+        this.cachedArrows = CacheBuilder.newBuilder()
+                .maximumSize(25)
+                .build(new CacheLoader<>() {
+                    @Override
+                    public IDrawableAnimated load(Integer cookTime) {
+                        return helper.drawableBuilder(Constants.RECIPE_GUI_VANILLA, 82, 128, 24, 17)
+                                .buildAnimated(cookTime, IDrawableAnimated.StartDirection.LEFT, false);
+                    }
+                });
         this.background = new IDrawable() {
             @Override
             public int getWidth() {
@@ -60,7 +69,9 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
     }
 
-
+    protected IDrawableAnimated getArrow() {
+        return this.cachedArrows.getUnchecked(50);
+    }
     @Override
     public RecipeType<MeltingRecipe> getRecipeType() {
         return RecipeType.create("melter","melting", MeltingRecipe.class);
@@ -103,8 +114,8 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
     @Override
     public void draw(MeltingRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
         IRecipeCategory.super.draw(recipe, recipeSlotsView, stack, mouseX, mouseY);
-        ModGUITextures.JEI_SHORT_ARROW.render(stack, 75, 12);
-
+        IDrawableAnimated arrow = getArrow();
+        arrow.draw(stack, 75, 14);
         drawProcessingTime(recipe, stack, 81,4);
 
 
