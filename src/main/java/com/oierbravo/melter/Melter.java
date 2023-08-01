@@ -48,10 +48,12 @@ public class Melter
         ModMessages.register();
         Config.register();
 
+        registrate().addRawLang("itemGroup.melter:main", "Melter");
         registrate().addRawLang("melter.block.display", "Melter");
         registrate().addRawLang("melting.recipe", "Melting");
         registrate().addRawLang("melter.tooltip.progress", "Progress: %d%%");
         registrate().addRawLang("melter.tooltip.multiplier", "Heat multiplier: %d");
+        registrate().addRawLang("melter.tooltip.oneline", "Heat: %s §6x§6%d");
         registrate().addRawLang("melter.tooltip.multiplier_none", "§cNot heated!");
         registrate().addRawLang("config.jade.plugin_melter.melter_data", "Melter data");
 
