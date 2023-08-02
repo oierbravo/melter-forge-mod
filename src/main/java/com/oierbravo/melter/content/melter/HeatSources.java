@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
@@ -59,8 +60,14 @@ public enum HeatSources implements StringRepresentable {
                 .orElse(HeatSources.NONE);
     }
     public static HeatSources get(BlockState blockState){
+
         String nameString = blockState.getBlock().getLootTable().toString();
         String blockString = blockState.getBlock().toString();
+        if(blockString.equals(HeatSources.CAMPFIRE.getResourceName())){
+            if(!blockState.getValue(BlockStateProperties.LIT)){
+                return HeatSources.NONE;
+            }
+        }
         if(Melter.withCreate && (blockState.hasProperty(BlazeBurnerBlock.HEAT_LEVEL))){
             BlazeBurnerBlock.HeatLevel heatLevel = blockState.getValue(BlazeBurnerBlock.HEAT_LEVEL);
             nameString += ":" +heatLevel.getSerializedName();
