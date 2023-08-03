@@ -1,10 +1,12 @@
 buildscript {
     repositories {
+        gradlePluginPortal()
         maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
         jcenter()
         maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
         maven { url = 'https://maven.parchmentmc.org' }
+
     }
     dependencies {
         classpath "net.minecraftforge.gradle:ForgeGradle:${forgegradle_version}"
@@ -14,7 +16,9 @@ buildscript {
 }
 
 plugins {
+    id 'maven-publish'
     id 'com.matthewprenger.cursegradle' version "${cursegradle_version}"
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -22,12 +26,13 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'idea'
+apply plugin: 'maven-publish'
 
 jarJar.enable()
 
 group = "com.${author}.${modid}"
-version = "${minecraft_version}-${mod_version}"
-archivesBaseName = modid
+version = "${mod_version}"
+archivesBaseName = "${modid}-${minecraft_version}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -198,7 +203,9 @@ compileJava.options.encoding = 'UTF-8'
 compileJava {
     options.compilerArgs = ['-Xdiags:verbose']
 }
-jar {
+tasks.withType(Jar) {
+    //from tasks.createChangelog.outputFile
+    archiveClassifier = 'slim'
     manifest {
         attributes([
                 "Specification-Title"     : modid,
@@ -211,8 +218,32 @@ jar {
                 "MixinConfigs"            : "${modid}.mixins.json"
         ])
     }
-}
 
+    if(file("./src/main/resources/${modid}.mixins.json").exists()) {
+        manifest {
+            attributes 'MixinConfigs': "${modid}.mixins.json"
+        }
+    }
+}
+task jarJarRelease {
+    group = 'jarjar'
+    doLast {
+        tasks.jarJar {
+            archiveClassifier = ''
+        }
+    }
+    finalizedBy tasks.jarJar
+}
+tasks.jarJar {
+    archiveClassifier = ''
+}
+void addLicense(jarTask) {
+    jarTask.from('LICENSE.txt') {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+addLicense(jar)
+addLicense(tasks.jarJar)
 
 mixin {
     add sourceSets.main, "${modid}.refmap.json"
@@ -235,3 +266,116 @@ reobf {
 
 jar.finalizedBy('reobfJar')
 tasks.jarJar.finalizedBy('reobfJarJar')
+
+//from components.java
+//def getArtifact = {  ->
+//    from components.java
+//    return jarJar.component(it)
+    // Method body here
+//}
+if(System.getenv('MODRINTH_TOKEN') != null) {
+
+    modrinth {
+        token = System.getenv("MODRINTH_TOKEN")
+        projectId = "melter"
+        versionNumber = "${mod_version}"
+        versionName = "${display_name} - v${mod_version} for Minecraft ${minecraft_version}"
+        versionType = "release" // This is the default -- can also be `beta` or `alpha`
+        uploadFile = tasks.jarJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
+        gameVersions = ["${minecraft_version}"] // Must be an array, even with only one version
+        loaders = ["forge"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
+        dependencies { // A special DSL for creating dependencies
+            optional.project "create"
+            optional.project "jei"
+            optional.project "crafttweaker"
+        }
+        syncBodyFrom = rootProject.file("README.md").text
+    }
+    tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
+
+}
+if(System.getenv('CURSEFORGE_TOKEN') != null) {
+    curseforge {
+        apiKey = System.getenv('CURSEFORGE_TOKEN')
+
+        project {
+            id = "${mod_curseforge_id}"
+            releaseType = "${mod_release_type}"
+            addGameVersion "${minecraft_version}"
+            changelog = tasks.createChangelog.outputFile.asFile.get()
+
+            relations {
+                optionalDependency 'jei'
+                embeddedLibrary 'apexcore'
+            }
+
+            mainArtifact tasks.jarJar
+            addArtifact jar
+            addArtifact sourcesJar
+        }
+    }
+}
+/*unifiedPublishing {
+    project {
+        displayName = "v${mod_version}" // Optional, name of the file
+        version = "${mod_version}" // Optional, Inferred from project by default
+        //changelog = "I am the changelog" // Optional, in markdown format
+        releaseType = "release" // Optional, use "release", "beta" or "alpha"
+        gameVersions = ["${minecraft_version}"]
+        gameLoaders = ["forge"]
+
+        mainPublication tasks.remapJar // Declares the publicated jar
+
+        relations {
+      //      depends { // Mark as a required dependency
+      //          curseforge = "fabric-api" // Optional, project slug
+      //          modrinth = "fabric-api" // Optional, project slug or id
+      //      }
+            includes {} // Mark as an included dependency
+            optional {} // Mark as an optional dependency
+            conflicts {} // Mark as a conflicted dependency
+        }
+
+        curseforge {
+            token = System.getenv("CF_TOKEN")
+            id = "000000" // Required, must be a string, ID of CurseForge project
+
+            displayName = "v1.0.0" // Optional, Inferred from the property above by default
+            version = "1.0.0" // Optional, Inferred from the property above by default
+            changelog = "I am the changelog" // Optional, Inferred from the property above by default
+            releaseType = "release" // Optional, Inferred from the property above by default
+            gameVersions = ["1.18.2"] // Optional, Inferred from the property above by default
+            gameLoaders = ["fabric"] // Optional, Inferred from the property above by default
+
+            mainPublication tasks.remapJar // Optional, Inferred from the property above by default
+
+            relations { // Optional, Inferred from the relations above by default
+                depends "fabric-api" // Mark as a required dependency
+                includes "fabric-api" // Mark as an included dependency
+                optional "fabric-api" // Mark as an optional dependency
+                conflicts "fabric-api" // Mark as a conflicted dependency
+            }
+        }
+
+        modrinth {
+            token = System.getenv("MODRINTH_TOKEN")
+            id = "P7dR8mSH" // Required, must be a string, ID of Modrinth project
+
+            displayName = "v1.0.0" // Optional, Inferred from the property above by default
+            version = "1.0.0" // Optional, Inferred from the property above by default
+            changelog = "I am the changelog" // Optional, Inferred from the property above by default
+            releaseType = "release" // Optional, Inferred from the property above by default
+            gameVersions = ["1.18.2"] // Optional, Inferred from the property above by default
+            gameLoaders = ["fabric"] // Optional, Inferred from the property above by default
+
+            mainPublication tasks.remapJar // Optional, Inferred from the property above by default
+
+            relations { // Optional, Inferred from the relations above by default
+                depends "fabric-api" // Mark as a required dependency
+                includes "fabric-api" // Mark as an included dependency
+                optional "fabric-api" // Mark as an optional dependency
+                conflicts "fabric-api" // Mark as a conflicted dependency
+            }
+        }
+    }
+}*/

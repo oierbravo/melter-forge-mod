@@ -4,6 +4,7 @@ issueTrackerURL="https://github.com/oierbravo/melter-forge-mod/issues"
 license="MIT"
 
 [[mods]] #mandatory
+updateJSONURL = "https://api.modrinth.com/updates/melter/forge_updates.json"
 modId="melter" #mandatory
 version="${file.jarVersion}" #mandatory
 displayName="Melter" #mandatory
