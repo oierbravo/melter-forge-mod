@@ -61,7 +61,7 @@ event.recipes.melterMelting(Fluid.of('minecraft:lava', 250),"#forge:cobblestone"
 event.recipes.melterMelting(Fluid.of('minecraft:lava', 250),"#forge:cobblestone").processingTime(1000).minimumHeat(8); //Lava generator
 ```
 
-## CraftTweaker Integration (1.19.2)
+## CraftTweaker Integration (1.19.2, 1.20.1)
 ```
 
 //addRecipe(String name, FluidStack outputFluid,Item inputItem, int processingTime, int minimumHeat)
