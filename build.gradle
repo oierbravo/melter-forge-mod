@@ -31,8 +31,8 @@ apply plugin: 'maven-publish'
 jarJar.enable()
 
 group = "com.${author}.${modid}"
-version = "${mod_version}"
-archivesBaseName = "${modid}-${minecraft_version}"
+version = "${minecraft_version}-${mod_version}"
+archivesBaseName = "${modid}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -44,12 +44,13 @@ minecraft {
         mappings channel: 'official', version: "${minecraft_version}"
     }
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         client {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             property 'forge.logging.console.level', 'info'
             mods {
                 "${modid}" {
@@ -136,9 +137,14 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+    maven {
+        url "https://jitpack.io"
+        content {
+            includeGroup "com.github.llamalad7.mixinextras"
+        }
+    }
 
-
-    /*maven {
+    maven {
         url "https://maven.saps.dev/minecraft"
         content {
             includeGroup "dev.latvian.mods"
@@ -150,7 +156,7 @@ repositories {
         content {
             includeGroup "dev.architectury"
         }
-    }*/
+    }
     mavenLocal()
     flatDir {
         dirs 'libs'
@@ -168,9 +174,9 @@ dependencies {
     }
     implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
 
-//    implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
-//    implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
-//    implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
+    implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
+    implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
+    implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
 
     compileOnly fg.deobf("mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${jei_minecraft_version}-forge-api:${jei_version}")
@@ -184,6 +190,10 @@ dependencies {
     implementation fg.deobf("com.simibubi.create:create-${create_minecraft_version}:${create_version}:slim") { transitive = false }
     implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-${flywheel_minecraft_version}:${flywheel_version}")
 
+    annotationProcessor "com.github.llamalad7.mixinextras:mixinextras-common:${mixin_extras}"
+    implementation fg.deobf("com.github.llamalad7.mixinextras:mixinextras-forge:${mixin_extras}")
+
+
     if (ct_enabled.toBoolean()) {
         def minecraftVersion= "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
         def ctDep = "com.blamejared.crafttweaker:CraftTweaker-forge-${ct_minecraft_version}:${ct_version}"
@@ -195,7 +205,7 @@ dependencies {
         annotationProcessor ctDep
     }
 
-    //annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
 }
 
@@ -214,8 +224,7 @@ tasks.withType(Jar) {
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.version,
                 "Implementation-Vendor"   : author,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs"            : "${modid}.mixins.json"
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 
@@ -289,6 +298,7 @@ if(System.getenv('MODRINTH_TOKEN') != null) {
             optional.project "jei"
             optional.project "crafttweaker"
         }
+        changelog = rootProject.file("changes/${minecraft_version}-${mod_version}.md").text
         syncBodyFrom = rootProject.file("README.md").text
     }
     tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
