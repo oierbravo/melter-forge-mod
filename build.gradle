@@ -16,9 +16,7 @@ buildscript {
 }
 
 plugins {
-    id 'maven-publish'
-    id 'com.matthewprenger.cursegradle' version "${cursegradle_version}"
-    id "com.modrinth.minotaur" version "2.+"
+    id "me.shedaniel.unified-publishing" version "0.1.+"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -281,38 +279,53 @@ reobf {
 jar.finalizedBy('reobfJar')
 tasks.jarJar.finalizedBy('reobfJarJar')
 
-//from components.java
-//def getArtifact = {  ->
-//    from components.java
-//    return jarJar.component(it)
-    // Method body here
-//}
-if(System.getenv('MODRINTH_TOKEN') != null) {
 
-    modrinth {
-        token = System.getenv("MODRINTH_TOKEN")
-        projectId = "melter"
-        versionNumber = "${mod_version}"
-        versionName = "${display_name} - v${mod_version} for Minecraft ${minecraft_version}"
-        versionType = "release" // This is the default -- can also be `beta` or `alpha`
-        uploadFile = tasks.jarJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
-        gameVersions = ["${minecraft_version}"] // Must be an array, even with only one version
-        loaders = ["forge"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
-        dependencies { // A special DSL for creating dependencies
-            optional.project "create"
-            optional.project "jei"
-            optional.project "crafttweaker"
-        }
-        syncBodyFrom = rootProject.file("README.md").text
-    }
-    tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
-
-}
-
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-// publish.dependsOn('reobfJar')
 
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+unifiedPublishing {
+    project {
+        displayName = "${archivesBaseName}-${project.version}"
+        changelog = rootProject.file("changes/${minecraft_version}-${mod_version}.md").text // Optional, in markdown format
+        releaseType = "release" // Optional, use "release", "beta" or "alpha"
+        gameVersions = ["${minecraft_version}"]
+        gameLoaders = ["forge"]
+
+        mainPublication tasks.jarJar // Declares the publicated jar
+
+        var cfToken = System.getenv("CF_TOKEN")
+        if(cfToken != null) {
+            curseforge {
+                token = cfToken
+                id = "${curseforge_id}" // Required, must be a string, ID of CurseForge project
+                //id = "661938" // Required, must be a string, ID of CurseForge project
+                //gameVersions.addAll "Java 17"
+                relations {
+                    depends "create"
+                    optional "jei"
+                    optional "kubejs"
+                    optional "crafttweaker"
+                }
+            }
+        }
+
+        var mrToken = System.getenv("MODRINTH_TOKEN")
+        if(mrToken != null) {
+            modrinth {
+                token = mrToken
+
+                //id = "r018adCw"// Required, must be a string, ID of Modrinth project
+                id = "${modrinth_id}"// Required, must be a string, ID of Modrinth project
+                relations {
+                    depends "create"
+                    optional "jei"
+                    optional "kubejs"
+                    optional "crafttweaker"
+                }
+            }
+        }
+    }
 }
