@@ -22,7 +22,6 @@ public record ModHeatSources() {
             CAMPFIRE = key("campfire_heat_source"),
             MAGMA = key("magma_heat_source"),
             LAVA = key("lava_heat_source"),
-            COND = key("cond_heat_source"),
             CREATIVE = key("creative_heat_source");
 
 
@@ -49,12 +48,12 @@ public record ModHeatSources() {
 
     public static void bootstrap(BootstrapContext<HeatSource> heatSourceBootstrapContext) {
         //Melter
-        new HeatSourceBuilder(TORCH).source(Blocks.TORCH).heatLevel(1).register(heatSourceBootstrapContext);
-        new HeatSourceBuilder(FIRE).source(Blocks.FIRE).heatLevel(2).register(heatSourceBootstrapContext);
-        new HeatSourceBuilder(CAMPFIRE).source(Blocks.CAMPFIRE).heatLevel(3).register(heatSourceBootstrapContext);
-        new HeatSourceBuilder(MAGMA).source(Blocks.MAGMA_BLOCK).heatLevel(4).register(heatSourceBootstrapContext);
-        new HeatSourceBuilder(LAVA).source(Blocks.LAVA).heatLevel(5).sourceType(HeatSource.SourceType.FLUID).register(heatSourceBootstrapContext);
-        new HeatSourceBuilder(CREATIVE).source(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get()).heatLevel(10).register(heatSourceBootstrapContext);
+        new HeatSourceBuilder(TORCH.location()).source(Blocks.TORCH).heatLevel(1).register(TORCH, heatSourceBootstrapContext);
+        new HeatSourceBuilder(FIRE.location()).source(Blocks.FIRE).heatLevel(2).register(FIRE, heatSourceBootstrapContext);
+        new HeatSourceBuilder(CAMPFIRE.location()).source(Blocks.CAMPFIRE).heatLevel(3).register(CAMPFIRE, heatSourceBootstrapContext);
+        new HeatSourceBuilder(MAGMA.location()).source(Blocks.MAGMA_BLOCK).heatLevel(4).register(MAGMA, heatSourceBootstrapContext);
+        new HeatSourceBuilder(LAVA.location()).source(Blocks.LAVA).heatLevel(5).sourceType(HeatSource.SourceType.FLUID).register(LAVA, heatSourceBootstrapContext);
+        new HeatSourceBuilder(CREATIVE.location()).source(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get()).heatLevel(10).register(CREATIVE, heatSourceBootstrapContext);
 
     }
 

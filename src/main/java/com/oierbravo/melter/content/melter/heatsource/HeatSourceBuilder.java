@@ -2,6 +2,7 @@ package com.oierbravo.melter.content.melter.heatsource;
 
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -12,15 +13,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class HeatSourceBuilder {
-    protected final ResourceKey<HeatSource> key;
+    protected ResourceLocation id;
     protected Block source;
     protected HeatSource.SourceType sourceType;
     protected int heatLevel;
     protected List<ICondition> conditions;
 
-
-    public HeatSourceBuilder(ResourceKey<HeatSource> pKey) {
-        this.key = pKey;
+    public HeatSourceBuilder(ResourceLocation pId) {
+        this.id = pId;
         this.source = Blocks.AIR;
         this.sourceType = HeatSource.SourceType.BLOCK;
         this.heatLevel = 0;
@@ -50,9 +50,9 @@ public class HeatSourceBuilder {
         return new HeatSource(source, heatLevel, sourceType, Optional.of(conditions));
     }
 
-    public HeatSource register(BootstrapContext<HeatSource> ctx) {
+    public HeatSource register(ResourceKey<HeatSource> pKey, BootstrapContext<HeatSource> ctx) {
         HeatSource type = build();
-        ctx.register(key, type);
+        ctx.register(pKey, type);
         return type;
     }
 }

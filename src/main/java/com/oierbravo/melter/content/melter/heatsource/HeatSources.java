@@ -244,6 +244,7 @@ public class HeatSources {
         itemStack.set(DataComponents.ITEM_NAME,component);
         return itemStack;
     }
+
     @Override
     public String toString() {
         return super.toString();
