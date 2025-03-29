@@ -9,8 +9,6 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public class ModConfig {
     public static void register(ModContainer modContainer) {
         registerServerConfigs(modContainer);
-        //registerCommonConfigs(modContainer);
-        //registerClientConfigs(modContainer);
     }
     private static void registerClientConfigs(ModContainer modContainer) {
         ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();

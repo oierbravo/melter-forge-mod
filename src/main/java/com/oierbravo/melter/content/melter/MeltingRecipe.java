@@ -147,12 +147,12 @@ public class MeltingRecipe implements Recipe<RecipeInput> {
         }
 
     @Override
-        public MapCodec<MeltingRecipe> codec() {
-            return CODEC;
-        }
+    public MapCodec<MeltingRecipe> codec() {
+        return CODEC;
+    }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MeltingRecipe> streamCodec() {
+    @Override
+    public StreamCodec<RegistryFriendlyByteBuf, MeltingRecipe> streamCodec() {
             return STREAM_CODEC;
         }
 

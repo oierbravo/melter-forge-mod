@@ -163,9 +163,11 @@ dependencies {
 
     implementation "curse.maven:jade-324717:${jade_id}"
 
-    compileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"
+   /* compileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${jei_minecraft_version}-neoforge-api:${jei_version}"
-    localRuntime "mezz.jei:jei-${jei_minecraft_version}-neoforge:${jei_version}"
+    localRuntime "mezz.jei:jei-${jei_minecraft_version}-neoforge:${jei_version}"*/
+    implementation("mezz.jei:jei-${jei_minecraft_version}-neoforge:${jei_version}")
+
 
     implementation("dev.latvian.mods:rhino:$rhino_version") { transitive(false) }
     implementation("dev.latvian.mods:kubejs-neoforge:$kubejs_version")
