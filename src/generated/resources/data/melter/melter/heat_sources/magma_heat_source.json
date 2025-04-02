@@ -1,5 +1,7 @@
 {
   "heatLevel": 4,
-  "source": "minecraft:magma_block",
+  "source": {
+    "blocks": "minecraft:magma_block"
+  },
   "sourceType": "BLOCK"
 }

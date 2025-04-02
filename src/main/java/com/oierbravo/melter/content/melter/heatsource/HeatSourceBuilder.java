@@ -1,10 +1,10 @@
 package com.oierbravo.melter.content.melter.heatsource;
 
+import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
@@ -14,22 +14,26 @@ import java.util.Optional;
 
 public class HeatSourceBuilder {
     protected ResourceLocation id;
-    protected Block source;
+    protected BlockPredicate source;
     protected HeatSource.SourceType sourceType;
     protected int heatLevel;
     protected List<ICondition> conditions;
+    protected String description;
 
     public HeatSourceBuilder(ResourceLocation pId) {
         this.id = pId;
-        this.source = Blocks.AIR;
+        this.source = BlockPredicate.Builder.block().build();
         this.sourceType = HeatSource.SourceType.BLOCK;
         this.heatLevel = 0;
         this.conditions = new ArrayList<>();
     }
 
-    public HeatSourceBuilder source(Block pSource){
+    public HeatSourceBuilder source(BlockPredicate pSource){
         this.source = pSource;
         return this;
+    }
+    public HeatSourceBuilder source(Block pSource){
+        return source(BlockPredicate.Builder.block().of(pSource).build());
     }
     public HeatSourceBuilder heatLevel(int pHeatLevel){
         this.heatLevel = pHeatLevel;
@@ -54,5 +58,10 @@ public class HeatSourceBuilder {
         HeatSource type = build();
         ctx.register(pKey, type);
         return type;
+    }
+
+    public HeatSourceBuilder description(String description) {
+        this.description = description;
+        return this;
     }
 }

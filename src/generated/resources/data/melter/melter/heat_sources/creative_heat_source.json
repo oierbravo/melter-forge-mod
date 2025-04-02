@@ -1,5 +1,7 @@
 {
   "heatLevel": 0,
-  "source": "melter:creative_heat_source",
+  "source": {
+    "blocks": "melter:creative_heat_source"
+  },
   "sourceType": "CREATIVE"
 }

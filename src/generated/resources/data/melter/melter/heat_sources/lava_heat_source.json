@@ -1,5 +1,7 @@
 {
   "heatLevel": 5,
-  "source": "minecraft:lava",
+  "source": {
+    "blocks": "minecraft:lava"
+  },
   "sourceType": "FLUID"
 }

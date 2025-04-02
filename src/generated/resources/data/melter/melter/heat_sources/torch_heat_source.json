@@ -1,5 +1,7 @@
 {
   "heatLevel": 1,
-  "source": "minecraft:torch",
+  "source": {
+    "blocks": "minecraft:torch"
+  },
   "sourceType": "BLOCK"
 }

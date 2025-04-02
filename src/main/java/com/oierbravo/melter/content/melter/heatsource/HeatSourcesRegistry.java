@@ -5,7 +5,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 
@@ -24,10 +24,11 @@ public class HeatSourcesRegistry {
                 HeatSource.CODEC
         );
     }
-    public static Optional<HeatSource> fromBlock(Level pLevel, Block pBlock){
+
+    public static Optional<HeatSource> fromBlockState(Level pLevel, BlockInWorld pBlock){
         for (Map.Entry<ResourceKey<HeatSource>, HeatSource> entry : pLevel.registryAccess().registry(HeatSourcesRegistry.HEAT_SOURCE_REGISTRY_KEY).get().entrySet()) {
             HeatSource heatSource = entry.getValue();
-            if(heatSource.getSource() == pBlock)
+            if(heatSource.test(pBlock))
                 return Optional.of(heatSource);
         }
         return Optional.empty();

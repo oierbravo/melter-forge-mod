@@ -1,44 +1,40 @@
 package com.oierbravo.melter.compat.jei;
 
 import com.oierbravo.melter.Melter;
+import com.oierbravo.melter.content.melter.heatsource.CreateHeatSourceUtils;
 import com.oierbravo.melter.content.melter.heatsource.HeatSource;
 import com.oierbravo.melter.content.melter.heatsource.HeatSources;
 import com.oierbravo.melter.content.melter.heatsource.HeatSourcesConfig;
-import com.oierbravo.melter.content.melter.heatsource.HeatSourcesRegistry;
+import com.oierbravo.melter.foundation.utility.BlockPredicateUtils;
 import com.oierbravo.melter.registrate.ModBlocks;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Recipe> {
+public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.HeatRecipe> {
 
-    public final static RecipeType<Recipe> TYPE = RecipeType.create("melter", "heatsource", Recipe.class);
+    public final static RecipeType<HeatRecipe> TYPE = RecipeType.create("melter", "heatsource", HeatRecipe.class);
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -65,7 +61,7 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
     }
 
     @Override
-    public RecipeType<Recipe> getRecipeType() {
+    public RecipeType<HeatRecipe> getRecipeType() {
         return TYPE;
     }
 
@@ -85,149 +81,107 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, Recipe recipe, IFocusGroup iFocusGroup) {
+    public void setRecipe(IRecipeLayoutBuilder builder, HeatRecipe recipe, IFocusGroup iFocusGroup) {
         var input = builder.addSlot(RecipeIngredientRole.INPUT, 4, 5)
             .setBackground(slotDrawable, -1, -1);
+        BlockPredicateUtils.Matcher predicateMatcher = BlockPredicateUtils.Matcher.of(recipe.source);
+        if (recipe.sourceType == HeatSource.SourceType.FLUID) {
+            input.addIngredients(NeoForgeTypes.FLUID_STACK,predicateMatcher.fluidStacks());
+        } else {
+            List<ItemStack> matchedItemStacks = predicateMatcher.itemStacks();
+            if(matchedItemStacks.isEmpty()){
+                matchedItemStacks = List.of(getCustomItemStack(recipe.source));
+            }
 
-        if (recipe.block != null) {
-            input.addItemStack(recipe.block);
+            input.addItemStacks(matchedItemStacks);
         }
+        Component customDescription = Component.empty();
+        for(Block block : BlockPredicateUtils.Matcher.of(recipe.source).blocks()){
+            customDescription = getDespcription(block, recipe.source);//.withStyle(ChatFormatting.ITALIC);
+        }
+        Component finalCustomDescription = customDescription;
+        input.addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(finalCustomDescription));
+    }
+    private Map<String, ItemStack> getCustomItemStackMap(){
+        Map<String,ItemStack> customItemStackMap = new HashMap<>(Map.of());
+        customItemStackMap.put("minecraft:fire", new ItemStack(Items.FLINT_AND_STEEL));
+        customItemStackMap.put("minecraft:soul_fire", new ItemStack(Items.FLINT_AND_STEEL));
 
-        if (recipe.fluid != null) {
-            input.addFluidStack(recipe.fluid.getFluid(), 1000L);
-        }
+        return customItemStackMap;
+    }
+    private ItemStack getCustomItemStack(BlockPredicate predicate) {
+        Map<String, ItemStack> customMap = getCustomItemStackMap();
+        for(Block block:  BlockPredicateUtils.Matcher.of(predicate).blocks()){
+            ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(block);
 
-        if (!recipe.description.isEmpty()) {
-            input.addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.description).withStyle(ChatFormatting.ITALIC)));
+            if(customMap.containsKey(blockResourceLocation.toString()))
+                return customMap.get(blockResourceLocation.toString());
+
+
         }
+        return ItemStack.EMPTY;
     }
 
     @Override
-    public void draw(Recipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(HeatRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (recipe.block != null && recipe.block.is(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.asItem())) {
+        if(recipe.sourceType == HeatSource.SourceType.CREATIVE) {
             guiGraphics.drawString(minecraft.font, Component.translatable("melter.tooltip.heat_level").append(" ").append(Component.translatable("melter.tooltip.heat_level.creative")), 30, 9, 0xFF808080, false);
+            return;
         }
-        else guiGraphics.drawString(minecraft.font, Component.translatable("melter.tooltip.heat_level").append(Component.literal(" " + recipe.heat)), 30, 9, 0xFF808080, false);
+        guiGraphics.drawString(minecraft.font, Component.translatable("melter.tooltip.heat_level").append(Component.literal(" " + recipe.heatLevel)), 30, 9, 0xFF808080, false);
     }
-    public static List<Recipe> getRecipes() {
+    public static List<HeatRecipe> getRecipes() {
         if(HeatSourcesConfig.HEAT_SOURCES_FROM_CONFIG.get())
             return getRecipesFromConfig();
         return getRecipesFromDatapacks();
     }
-    public static List<Recipe> getRecipesFromDatapacks() {
-        List<Recipe> recipes = new ArrayList<>();
+    private static List<HeatRecipe> getRecipesFromDatapacks() {
+        return List.of();
+    }
+    private static List<HeatRecipe> getRecipesFromConfig() {
+        return HeatSources.getHeatSourcesConfig().stream().map(HeatRecipe::new).toList();
+    }
 
-
-        for (Map.Entry<ResourceKey<HeatSource>, HeatSource> entry : Minecraft.getInstance().level.registryAccess().registry(HeatSourcesRegistry.HEAT_SOURCE_REGISTRY_KEY).get().entrySet()) {
-            HeatSource heatSource = (HeatSource) entry.getValue();
-            if(heatSource.getSourceType() == HeatSource.SourceType.BLOCK){
-                recipes.add(new Recipe(generateItemStack(heatSource.getSource()), null, heatSource.getHeatLevel(), ""));
-            }
-            if(heatSource.getSourceType() == HeatSource.SourceType.FLUID){
-                recipes.add(new Recipe(null, new FluidStack(heatSource.getFluidSource(),1000), heatSource.getHeatLevel(), ""));
-            }
-
+    private Map<String,Component> getDescriptionsMap(){
+        Map<String,Component> descriptionMap = new HashMap<>(Map.of());
+        descriptionMap.put("melter:creative_heat_source", Component.translatable("melter.tooltip.creative").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+        descriptionMap.put("create:blaze_burner/error", Component.literal("ERROR").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+        descriptionMap.put("create:blaze_burner/none", Component.translatable("melter.tooltip.create.blaze_burner." + "none").withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD));
+        descriptionMap.put("create:blaze_burner/fading", Component.translatable("melter.tooltip.create.blaze_burner." + "fading").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+        descriptionMap.put("create:blaze burner/smouldering", Component.translatable("melter.tooltip.create.blaze_burner." + "smouldering").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+        descriptionMap.put("create:blaze_burner/kindled", Component.translatable("melter.tooltip.create.blaze_burner." + "kindled").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+        descriptionMap.put("create:blaze_burner/seething", Component.translatable("melter.tooltip.create.blaze_burner." + "seething").withStyle(ChatFormatting.BLUE, ChatFormatting.BOLD));
+        return descriptionMap;
+    }
+    private Component getDespcription(Block block, BlockPredicate predicate){
+        String blockId = BuiltInRegistries.BLOCK.getKey(block).toString();
+        if(Melter.withCreate){
+            if(blockId.equals("create:blaze_burner"))
+                blockId = CreateHeatSourceUtils.generateCreateBlazeBurnerId(predicate);
         }
-        recipes.sort(Comparator.comparingInt(Recipe::heat));
-        return recipes;
+        if(getDescriptionsMap().containsKey(blockId)){
+            return getDescriptionsMap().get(blockId);
+        }
+        return Component.empty();
+
     }
-    private static ItemStack generateItemStack(Block pBlock){
-        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(pBlock);
-
-        //"minecraft:soul_fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-        return switch(blockResourceLocation.toString()) {
-            case "minecraft:fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FLINT_AND_STEEL),Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-            case "minecraft:soul_fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-            //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
-            default -> new ItemStack(BuiltInRegistries.ITEM.get(blockResourceLocation));
-        };
-    }
-    public static List<Recipe> getRecipesFromConfig() {
-        List<Recipe> recipes = new ArrayList<>();
-
-        for (HeatSources.Config hs : HeatSources.getHeatSourcesConfig()) {
-            Melter.LOGGER.info("processing heat source: " + hs.name());
-            var rl = hs.rl();
-            if (hs.type().equals(HeatSource.SourceType.BLOCK)) {
-                var item = BuiltInRegistries.ITEM.get(rl);
-                Block block = null;
-
-                if (!item.equals(new ItemStack(Blocks.AIR).getItem())) {
-                    if (item instanceof BlockItem blockItem) {
-                        block = blockItem.getBlock();
-                    }
-                }
-                else {
-                    block = BuiltInRegistries.BLOCK.get(rl);
-                }
-
-                if (block == null || block.equals(Blocks.AIR)) {
-                    continue;
-                }
-
-                var heat = HeatSources.getConfigHeatSourceMap().getOrDefault(hs.name(), 0);
-                if (heat > 0) {
-                    ItemStack is = switch(rl.toString()) {
-                        //case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                        //case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-                        case "minecraft:wall_torch" -> new ItemStack(Items.TORCH);
-                        case "minecraft:soul_wall_torch" -> {
-                            ItemStack itemStack = new ItemStack(Items.SOUL_TORCH);
-                            yield itemStack;
-                        }
-                        //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
-                        default -> new ItemStack(block);
-                    };
-
-                    if (is.is(Blocks.AIR.asItem())) {
-                        continue;
-                    }
-
-                    boolean isItemStackPresent = recipes.stream()
-                        .filter(r -> r.block != null)
-                        .anyMatch(r -> r.block.is(is.getItem()) && r.description.equals(hs.description()));
-
-                    if (!isItemStackPresent) {
-                        recipes.add(new Recipe(is, null, heat, hs.description()));
-                        Melter.LOGGER.info("added heat source block: " + hs.name());
-                    }
-                }
-            }
-            else if (hs.type().equals(HeatSource.SourceType.FLUID)) {
-                var fluid = BuiltInRegistries.FLUID.get(rl);
-
-                if (fluid.equals(Fluids.EMPTY)) {
-                    continue;
-                }
-
-                var heat = HeatSources.getConfigHeatSourceMap().getOrDefault(hs.name(), 0);
-                if (heat > 0) {
-                    FluidStack fs = new FluidStack(fluid, 1000);
-
-                    boolean isFluidStackPresent = recipes.stream()
-                        .filter(r -> r.fluid != null)
-                        .anyMatch(r -> r.fluid.isFluidEqual(fs) && r.description.equals(hs.description()));
-
-                    if (!isFluidStackPresent) {
-                        recipes.add(new Recipe(null, fs, heat, hs.description()));
-                        Melter.LOGGER.info("added heat source fluid: " + hs.name());
-                    }
-                }
-            }
+    public static class HeatRecipe{
+        public BlockPredicate source;
+        public int heatLevel;
+        public HeatSource.SourceType sourceType;
+        public HeatRecipe(BlockPredicate source, int heatLevel, HeatSource.SourceType sourceType) {
+            this.source = source;
+            this.heatLevel = heatLevel;
+            this.sourceType = sourceType;
         }
 
-        // creative
-        recipes.add(new Recipe(new ItemStack(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK), null, Integer.MAX_VALUE, ""));
-
-        // Sort by heat ascending
-        recipes.sort(Comparator.comparingInt(Recipe::heat));
-
-        Melter.LOGGER.info("Added '{}' heat sources to JEI", recipes.size());
-
-        return recipes;
+        public HeatRecipe(HeatSourcesConfig.ConfigHeatSource configHeatSource){
+            this(configHeatSource.toHeatSource());
+        }
+        public HeatRecipe(HeatSource heatSource){
+            this(heatSource.getSource(), heatSource.getHeatLevel(), heatSource.getSourceType());
+        }
     }
 
-    public record Recipe(@Nullable ItemStack block, @Nullable FluidStack fluid, int heat, String description) {
-    }
 }
