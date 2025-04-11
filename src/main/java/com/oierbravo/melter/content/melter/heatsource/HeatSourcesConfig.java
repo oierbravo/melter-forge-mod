@@ -1,5 +1,6 @@
 package com.oierbravo.melter.content.melter.heatsource;
 
+import com.oierbravo.melter.foundation.utility.BlockPredicateUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -52,6 +53,7 @@ public class HeatSourcesConfig {
         }
         public HeatSource toHeatSource(){
             return new HeatSourceBuilder(ResourceLocation.parse(name))
+                    .source( BlockPredicateUtils.Builder.build(cleanResourceLocation()))
                     .sourceType(type)
                     .heatLevel(level)
                     .description(description)

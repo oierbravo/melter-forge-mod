@@ -1,7 +1,17 @@
-// 1.21.1	2025-03-31T10:48:04.010843833	Melter's melting recipes.
+// 1.21.1	2025-04-11T12:48:05.492967557	Melter's melting recipes.
+a66973ae256e85b65720a0675cea057cb6d3ee75 data/melter/advancement/recipes/melting/blue_ice.json
 093aae23b57cccf48b24d222c23ecaaeda6bef8e data/melter/advancement/recipes/melting/cobblestones.json
+b3026650389ef0c94ffd6798b2560ad6b30cfff8 data/melter/advancement/recipes/melting/honey.json
+4dc8b2e522f784e8f82d3d9408dc0cbb9351b589 data/melter/advancement/recipes/melting/ice.json
 233e8ea39571efa7502dd5bc9c64011ee25f6384 data/melter/advancement/recipes/melting/obsidians.json
+f27b83b64fb8936c54392667413d733f3d5c26e7 data/melter/advancement/recipes/melting/snow.json
+ddaf74788f25be2103be3c87fd8d94295ccb523d data/melter/advancement/recipes/melting/snow_ball.json
 5e835e97ea7f828c3e87c33d8f16ce2c576ffefd data/melter/advancement/recipes/melting/stones.json
+169978a8f489fa0d32379399c098c7c69e216bab data/melter/recipe/melting/blue_ice.json
 4fa8d9359d630fd1bbc2f6f0b44aee2517cbc0cd data/melter/recipe/melting/cobblestones.json
+8c23dc66fa13dec6865c0ddb6f4e5d36a87d69d5 data/melter/recipe/melting/honey.json
+94a6ce5c56ca43412863cfc666a4df4e80a63d19 data/melter/recipe/melting/ice.json
 2138a9d06b41d11e750946959cea576d9eba72a8 data/melter/recipe/melting/obsidians.json
+a419a76936e91f1bacaf083815ecb2c6b7326bc4 data/melter/recipe/melting/snow.json
+a1a274fba8ad60bae7bdb110c3c3f354ac9164fa data/melter/recipe/melting/snow_ball.json
 9418a7372de81b6427d74addc9e83b5b98e184db data/melter/recipe/melting/stones.json

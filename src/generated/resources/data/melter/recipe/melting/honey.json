@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "melter:melting",
+  "input": {
+    "item": "minecraft:honey_block"
+  },
+  "output": {
+    "amount": 1000,
+    "id": "create:flowing_honey"
+  },
+  "processingTime": 400
+}

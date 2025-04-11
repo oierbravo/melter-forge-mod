@@ -1,12 +1,11 @@
 package com.oierbravo.melter.compat.jei;
 
-import com.oierbravo.melter.Melter;
-import com.oierbravo.melter.content.melter.heatsource.CreateHeatSourceUtils;
 import com.oierbravo.melter.content.melter.heatsource.HeatSource;
 import com.oierbravo.melter.content.melter.heatsource.HeatSources;
 import com.oierbravo.melter.content.melter.heatsource.HeatSourcesConfig;
 import com.oierbravo.melter.foundation.utility.BlockPredicateUtils;
 import com.oierbravo.melter.registrate.ModBlocks;
+import com.oierbravo.melter.registrate.ModHeatSources;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -17,7 +16,6 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -70,6 +68,7 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.He
         return Component.translatable("heatsource.recipe");
     }
 
+    @SuppressWarnings("removal")
     @Override
     public IDrawable getBackground() {
         return this.background;
@@ -84,39 +83,32 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.He
     public void setRecipe(IRecipeLayoutBuilder builder, HeatRecipe recipe, IFocusGroup iFocusGroup) {
         var input = builder.addSlot(RecipeIngredientRole.INPUT, 4, 5)
             .setBackground(slotDrawable, -1, -1);
-        BlockPredicateUtils.Matcher predicateMatcher = BlockPredicateUtils.Matcher.of(recipe.source);
-        if (recipe.sourceType == HeatSource.SourceType.FLUID) {
-            input.addIngredients(NeoForgeTypes.FLUID_STACK,predicateMatcher.fluidStacks());
+        if (recipe.heatSource.getSourceType() == HeatSource.SourceType.FLUID) {
+            input.addIngredients(
+                    NeoForgeTypes.FLUID_STACK,
+                    BlockPredicateUtils.Matcher.of(recipe.heatSource.getSource())
+                            .fluidStacks());
         } else {
-            List<ItemStack> matchedItemStacks = predicateMatcher.itemStacks();
-            if(matchedItemStacks.isEmpty()){
-                matchedItemStacks = List.of(getCustomItemStack(recipe.source));
-            }
-
-            input.addItemStacks(matchedItemStacks);
+            List<ItemStack> itemStacks = recipe.heatSource.asItemStacks();
+            if(itemStacks.isEmpty())
+                input.addItemStack(getCustomItemStack(recipe.heatSource.getSource()));
+            else
+                input.addItemStacks(itemStacks);
         }
-        Component customDescription = Component.empty();
-        for(Block block : BlockPredicateUtils.Matcher.of(recipe.source).blocks()){
-            customDescription = getDespcription(block, recipe.source);//.withStyle(ChatFormatting.ITALIC);
-        }
-        Component finalCustomDescription = customDescription;
-        input.addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(finalCustomDescription));
+        input.addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(recipe.heatSource.getDescription()));
     }
-    private Map<String, ItemStack> getCustomItemStackMap(){
+
+    private ItemStack getCustomItemStack(BlockPredicate predicate) {
         Map<String,ItemStack> customItemStackMap = new HashMap<>(Map.of());
         customItemStackMap.put("minecraft:fire", new ItemStack(Items.FLINT_AND_STEEL));
         customItemStackMap.put("minecraft:soul_fire", new ItemStack(Items.FLINT_AND_STEEL));
 
-        return customItemStackMap;
-    }
-    private ItemStack getCustomItemStack(BlockPredicate predicate) {
-        Map<String, ItemStack> customMap = getCustomItemStackMap();
+
         for(Block block:  BlockPredicateUtils.Matcher.of(predicate).blocks()){
             ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(block);
 
-            if(customMap.containsKey(blockResourceLocation.toString()))
-                return customMap.get(blockResourceLocation.toString());
-
+            if(customItemStackMap.containsKey(blockResourceLocation.toString()))
+                return customItemStackMap.get(blockResourceLocation.toString());
 
         }
         return ItemStack.EMPTY;
@@ -125,11 +117,11 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.He
     @Override
     public void draw(HeatRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         Minecraft minecraft = Minecraft.getInstance();
-        if(recipe.sourceType == HeatSource.SourceType.CREATIVE) {
+        if(recipe.heatSource.getSourceType() == HeatSource.SourceType.CREATIVE) {
             guiGraphics.drawString(minecraft.font, Component.translatable("melter.tooltip.heat_level").append(" ").append(Component.translatable("melter.tooltip.heat_level.creative")), 30, 9, 0xFF808080, false);
             return;
         }
-        guiGraphics.drawString(minecraft.font, Component.translatable("melter.tooltip.heat_level").append(Component.literal(" " + recipe.heatLevel)), 30, 9, 0xFF808080, false);
+        guiGraphics.drawString(minecraft.font, Component.translatable("melter.tooltip.heat_level").append(Component.literal(" " + recipe.heatSource.getHeatLevel())), 30, 9, 0xFF808080, false);
     }
     public static List<HeatRecipe> getRecipes() {
         if(HeatSourcesConfig.HEAT_SOURCES_FROM_CONFIG.get())
@@ -137,50 +129,20 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.He
         return getRecipesFromDatapacks();
     }
     private static List<HeatRecipe> getRecipesFromDatapacks() {
-        return List.of();
+        return ModHeatSources.getAllFromDatapacks().stream().map(HeatRecipe::new).toList();
     }
     private static List<HeatRecipe> getRecipesFromConfig() {
         return HeatSources.getHeatSourcesConfig().stream().map(HeatRecipe::new).toList();
     }
 
-    private Map<String,Component> getDescriptionsMap(){
-        Map<String,Component> descriptionMap = new HashMap<>(Map.of());
-        descriptionMap.put("melter:creative_heat_source", Component.translatable("melter.tooltip.creative").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
-        descriptionMap.put("create:blaze_burner/error", Component.literal("ERROR").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-        descriptionMap.put("create:blaze_burner/none", Component.translatable("melter.tooltip.create.blaze_burner." + "none").withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD));
-        descriptionMap.put("create:blaze_burner/fading", Component.translatable("melter.tooltip.create.blaze_burner." + "fading").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
-        descriptionMap.put("create:blaze burner/smouldering", Component.translatable("melter.tooltip.create.blaze_burner." + "smouldering").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
-        descriptionMap.put("create:blaze_burner/kindled", Component.translatable("melter.tooltip.create.blaze_burner." + "kindled").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
-        descriptionMap.put("create:blaze_burner/seething", Component.translatable("melter.tooltip.create.blaze_burner." + "seething").withStyle(ChatFormatting.BLUE, ChatFormatting.BOLD));
-        return descriptionMap;
-    }
-    private Component getDespcription(Block block, BlockPredicate predicate){
-        String blockId = BuiltInRegistries.BLOCK.getKey(block).toString();
-        if(Melter.withCreate){
-            if(blockId.equals("create:blaze_burner"))
-                blockId = CreateHeatSourceUtils.generateCreateBlazeBurnerId(predicate);
-        }
-        if(getDescriptionsMap().containsKey(blockId)){
-            return getDescriptionsMap().get(blockId);
-        }
-        return Component.empty();
-
-    }
     public static class HeatRecipe{
-        public BlockPredicate source;
-        public int heatLevel;
-        public HeatSource.SourceType sourceType;
-        public HeatRecipe(BlockPredicate source, int heatLevel, HeatSource.SourceType sourceType) {
-            this.source = source;
-            this.heatLevel = heatLevel;
-            this.sourceType = sourceType;
-        }
+        public HeatSource heatSource;
 
         public HeatRecipe(HeatSourcesConfig.ConfigHeatSource configHeatSource){
             this(configHeatSource.toHeatSource());
         }
         public HeatRecipe(HeatSource heatSource){
-            this(heatSource.getSource(), heatSource.getHeatLevel(), heatSource.getSourceType());
+            this.heatSource = heatSource;
         }
     }
 

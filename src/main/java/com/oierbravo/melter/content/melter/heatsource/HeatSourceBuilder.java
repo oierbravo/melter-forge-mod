@@ -2,6 +2,7 @@ package com.oierbravo.melter.content.melter.heatsource;
 
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -18,7 +19,7 @@ public class HeatSourceBuilder {
     protected HeatSource.SourceType sourceType;
     protected int heatLevel;
     protected List<ICondition> conditions;
-    protected String description;
+    protected String description = "";
 
     public HeatSourceBuilder(ResourceLocation pId) {
         this.id = pId;
@@ -51,7 +52,7 @@ public class HeatSourceBuilder {
         return this;
     }
     public HeatSource build() {
-        return new HeatSource(source, heatLevel, sourceType, Optional.of(conditions));
+        return new HeatSource(source, heatLevel, sourceType, Optional.of(conditions), Component.literal(description));
     }
 
     public HeatSource register(ResourceKey<HeatSource> pKey, BootstrapContext<HeatSource> ctx) {

@@ -1,8 +1,9 @@
 package com.oierbravo.melter.infrastructure.ponder;
 
+import com.tterrag.registrate.util.entry.ItemProviderEntry;
+import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.createmod.ponder.api.registration.PonderPlugin;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
-import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,13 +18,12 @@ public class ModPonderPlugin implements PonderPlugin {
 
 	@Override
 	public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-		ModPonderScenes.register(helper);
+		PonderSceneRegistrationHelper<ItemProviderEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
+
+		HELPER.forComponents(com.oierbravo.melter.registrate.ModBlocks.MELTER)
+				.addStoryBoard("melter_heated", MelterScenes::melter);
 	}
 
-	@Override
-	public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
-		ModPonderTags.register(helper);
-	}
 
 
 }

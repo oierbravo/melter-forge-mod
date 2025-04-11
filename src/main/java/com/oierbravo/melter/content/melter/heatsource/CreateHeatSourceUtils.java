@@ -17,6 +17,22 @@ public class CreateHeatSourceUtils {
         }
         return blockName;
     }
+    public static String getHeatLevelSerializedName(BlockPredicate predicate) {
+        for(BlazeBurnerBlock.HeatLevel heatLevel : BlazeBurnerBlock.HeatLevel.values()) {
+            if (predicate.properties().get().matches(createBlazeBurnerBlockState(heatLevel)))
+                return heatLevel.getSerializedName();
+        }
+        return "";
+    }
+    public static boolean isBlazeBurner(BlockPredicate predicate){
+        for(BlazeBurnerBlock.HeatLevel heatLevel : BlazeBurnerBlock.HeatLevel.values()) {
+            if (predicate.properties().isEmpty())
+                continue;
+            if (predicate.properties().get().matches(createBlazeBurnerBlockState(heatLevel)))
+                return true;
+        }
+        return false;
+    }
 
     public static String generateCreateBlazeBurnerId(BlockPredicate predicate) {
         String baseId = "create:blaze_burner/";
@@ -30,6 +46,10 @@ public class CreateHeatSourceUtils {
         return AllBlocks.BLAZE_BURNER.getDefaultState().setValue(BlazeBurnerBlock.HEAT_LEVEL, heatLevel);
     }
     public static Component createDescription(BlockPredicate predicate){
-        return Component.translatable("block.create.blaze_burner");
+        String heatLevel = getHeatLevelSerializedName(predicate);
+        return switch(heatLevel){
+            case "seething" -> Component.translatable("create.recipe.heat_requirement.superheated");
+            default -> Component.translatable("create.recipe.heat_requirement.heated");
+        };
     }
 }

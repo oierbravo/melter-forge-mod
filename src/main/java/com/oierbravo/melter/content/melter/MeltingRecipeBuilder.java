@@ -5,6 +5,7 @@ import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -38,6 +39,14 @@ public class MeltingRecipeBuilder implements RecipeBuilder {
     public MeltingRecipeBuilder input(ItemLike itemLike){
         params.input = Ingredient.of(itemLike);
         return this;
+    }
+
+    public MeltingRecipeBuilder input(ResourceLocation rl){
+        return input(BuiltInRegistries.BLOCK.get(rl));
+    }
+
+    public MeltingRecipeBuilder input(String id){
+        return input(ResourceLocation.parse(id));
     }
     public MeltingRecipeBuilder input(TagKey<Item> tag) {
         params.input = Ingredient.of(tag);

@@ -118,6 +118,7 @@ public class HeatSources {
 
         return heatLevel;
     }
+
     public static List<HeatSourcesConfig.ConfigHeatSource> getHeatSourcesConfig() {
         return HeatSourcesConfig.HEAT_SOURCES.get()
             .stream()
