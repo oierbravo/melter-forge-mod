@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +130,7 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.He
         return getRecipesFromDatapacks();
     }
     private static List<HeatRecipe> getRecipesFromDatapacks() {
-        return ModHeatSources.getAllFromDatapacks().stream().map(HeatRecipe::new).toList();
+        return ModHeatSources.getAllFromDatapacks().stream().sorted(Comparator.comparingInt(HeatSource::getHeatLevel)).map(HeatRecipe::new).toList();
     }
     private static List<HeatRecipe> getRecipesFromConfig() {
         return HeatSources.getHeatSourcesConfig().stream().map(HeatRecipe::new).toList();

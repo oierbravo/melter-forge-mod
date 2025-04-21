@@ -8,7 +8,6 @@ import com.oierbravo.melter.content.melter.MeltingRecipe;
 import com.oierbravo.melter.content.melter.heatsource.HeatSource;
 import com.oierbravo.melter.content.melter.heatsource.HeatSources;
 import com.oierbravo.melter.registrate.ModBlocks;
-import mezz.jei.api.constants.ModIds;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -59,7 +58,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
                 .build(new CacheLoader<>() {
                     @Override
                     public IDrawableAnimated load(Integer cookTime) {
-                        return helper.drawableBuilder(ResourceLocation.fromNamespaceAndPath(ModIds.JEI_ID,"textures/jei/gui/gui_vanilla.png"), 82, 128, 24, 17)
+                        return helper.drawableBuilder(ResourceLocation.fromNamespaceAndPath(Melter.MODID,"textures/gui/arrow.png"), 22, 0, 22, 16)
                                 .buildAnimated(cookTime, IDrawableAnimated.StartDirection.LEFT, false);
                     }
                 });

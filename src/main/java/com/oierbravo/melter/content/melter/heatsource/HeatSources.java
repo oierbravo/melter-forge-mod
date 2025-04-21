@@ -179,7 +179,7 @@ public class HeatSources {
             })
             .forEach(e -> {
                 var rl = e.cleanResourceLocation();
-                if (e.type().equals(HeatSource.SourceType.BLOCK)) {
+                if (e.type().equals(HeatSource.SourceType.BLOCK) || e.type().equals(HeatSource.SourceType.BLOCK_STATE)) {
                     // Fire and Soul Fire don't really have a "Block" we can use to texture
                     ItemStack is = switch(rl.toString()) {
                         case "minecraft:fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FLINT_AND_STEEL),Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
