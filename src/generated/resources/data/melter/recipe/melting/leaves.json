@@ -1,0 +1,11 @@
+{
+  "type": "melter:melting",
+  "input": {
+    "tag": "minecraft:leaves"
+  },
+  "output": {
+    "amount": 100,
+    "id": "minecraft:water"
+  },
+  "processingTime": 400
+}

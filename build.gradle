@@ -15,11 +15,11 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-group = "com.${author}.${modid}"
+group = "com.${mod_author}.${mod_id}"
 version = "${minecraft_version}-${mod_version}"
 
 base {
-    archivesName = modid
+    archivesName = mod_id
 }
 
 
@@ -35,7 +35,7 @@ neoForge {
     version = project.neo_version
 
     parchment {
-        mappingsVersion = project.parchment_mappings_version
+        mappingsVersion = project.parchment_version
         minecraftVersion = project.parchment_minecraft_version
     }
 
@@ -49,13 +49,13 @@ neoForge {
             client()
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.modid
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         server {
             server()
             programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.modid
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -63,7 +63,7 @@ neoForge {
         // The gametest system is also enabled by default for other run configs under the /test command.
         gameTestServer {
             type = "gameTestServer"
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.modid
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         data {
@@ -73,7 +73,7 @@ neoForge {
             // gameDirectory = project.file('run-data')
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            programArguments.addAll '--mod', project.modid, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
         // applies to all the run configs above
@@ -97,7 +97,7 @@ neoForge {
         // these are used to tell the game which sources are for which mod
         // mostly optional in a single mod project
         // but multi mod projects should define one per mod
-        "${modid}" {
+        "${mod_id}" {
             sourceSet(sourceSets.main)
         }
     }
@@ -116,11 +116,10 @@ configurations {
 
 repositories {
     mavenLocal()
-    maven {
-        // location of the maven that hosts JEI files since January 2023
-        name = "Jared's maven"
-        url = "https://maven.blamejared.com/"
-    }
+    maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
+    maven { url = "https://mvn.devos.one/snapshots" } // Registrate
+    maven { url = "https://maven.blamejared.com" } // JEI, Vazkii's Mods
     maven {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
@@ -161,11 +160,20 @@ dependencies {
     jarJar(group: 'com.tterrag.registrate', name: 'Registrate', version: "[${registrate_version},)")
     implementation "com.tterrag.registrate:Registrate:${registrate_version}"
 
+    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${flywheel_minecraft_version}:${flywheel_version}")
+    runtimeOnly(jarJar("dev.engine-room.flywheel:flywheel-neoforge-${flywheel_minecraft_version}:${flywheel_version}") {
+        version {
+            strictly "[1.0,2.0)"
+            prefer flywheel_version
+        }
+    })
+
     implementation "curse.maven:jade-324717:${jade_id}"
 
-   /* compileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${jei_minecraft_version}-neoforge-api:${jei_version}"
-    localRuntime "mezz.jei:jei-${jei_minecraft_version}-neoforge:${jei_version}"*/
+    jarJar("net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}")
+
+    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    implementation("net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}")
     implementation("mezz.jei:jei-${jei_minecraft_version}-neoforge:${jei_version}")
 
 
@@ -176,15 +184,9 @@ dependencies {
 
 
     if (ct_enabled.toBoolean()) {
-//        def minecraftVersion= "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-//        def ctDep = "com.blamejared.crafttweaker:CraftTweaker-forge-${ct_minecraft_version}:${ct_version}"
-//        compileOnly(ctDep)
-//        runtimeOnly(fg.deobf(ctDep))
         implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-1.21:$ct_version")
 
         annotationProcessor "com.blamejared.crafttweaker:Crafttweaker_Annotation_Processors:${ct_annotation_processor_version}"
-//        annotationProcessor minecraftVersion
-//        annotationProcessor ctDep
     }
 }
 
@@ -201,7 +203,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             neo_version            : neo_version,
             neo_version_range      : neo_version_range,
             loader_version_range   : loader_version_range,
-            mod_id                 : modid,
+            mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,
             mod_version            : mod_version,
@@ -237,7 +239,7 @@ tasks.withType(ProcessResources).configureEach {
             minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
             neo_version         : neo_version, neo_version_range: neo_version_range,
             loader_version_range: loader_version_range,
-            mod_id              : modid, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
             mod_authors         : mod_authors, mod_description: mod_description,
     ]
     inputs.properties replaceProperties
