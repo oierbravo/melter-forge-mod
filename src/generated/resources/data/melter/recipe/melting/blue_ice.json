@@ -1,0 +1,11 @@
+{
+  "type": "melter:melting",
+  "input": {
+    "item": "minecraft:blue_ice"
+  },
+  "output": {
+    "amount": 1000,
+    "id": "minecraft:water"
+  },
+  "processingTime": 400
+}

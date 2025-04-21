@@ -96,6 +96,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
         return Component.translatable("melting.recipe");
     }
 
+    @SuppressWarnings("removal")
     @Override
     public IDrawable getBackground() {
         return this.background;
@@ -119,13 +120,13 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
         fluidList.add(recipe.getOutput());
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, getWidth()-inputSlotOffsetX - slotDrawable.getWidth(), 14)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB").withStyle(ChatFormatting.GOLD)) )
+                .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.literal(recipe.getOutput().getAmount() + "mB").withStyle(ChatFormatting.GOLD)) )
                 .addIngredients(NeoForgeTypes.FLUID_STACK, fluidList)
                 .setBackground(slotDrawable, -1, -1);
         
         Map<HeatSource.SourceType, List> heatSourceStacks = HeatSources.getHeatSourcesForHeatLevel(recipe.getHeatLevel());;
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY,getWidth()/2 - slotDrawable.getWidth()/2,38)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel()).withStyle(ChatFormatting.GOLD)))
+                .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel()).withStyle(ChatFormatting.GOLD)))
                 .addIngredients(NeoForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSource.SourceType.FLUID))
                 .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSource.SourceType.BLOCK))
                 .setBackground(slotDrawable, -1, -1);

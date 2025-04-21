@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -29,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 import java.util.Optional;
 
 public class MelterBlockEntity extends BlockEntity  {
@@ -192,9 +192,10 @@ public class MelterBlockEntity extends BlockEntity  {
     public void updateBlockStateFromNeighborUpdate(BlockState pLastState){
         BlockPos pos = this.getBlockPos();
         BlockState below = this.getLevel().getBlockState(pos.below());
+        BlockInWorld belowInWorld = new BlockInWorld(getLevel(),pos.below(), false);
 
         BlockState newState = this.getBlockState()
-            .setValue(MelterBlock.HEAT_SOURCE, HeatSources.getHeatSource(this.getLevel(), below))
+            .setValue(MelterBlock.HEAT_SOURCE, HeatSources.getHeatSource(this.getLevel(), belowInWorld))
             .setValue(MelterBlock.CREATIVE, HeatSources.isCreative(getLevel(), pos.below()));
         if(!pLastState.equals(newState)){
             this.getLevel().setBlock(pos,newState,Block.UPDATE_ALL);
@@ -262,8 +263,10 @@ public class MelterBlockEntity extends BlockEntity  {
 
     protected static boolean hasHeatSourceBelow(MelterBlockEntity pBlockEntity){
         BlockPos pos = pBlockEntity.getBlockPos();
-        BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
-        return HeatSources.isHeatSource(pBlockEntity.getLevel(), below);
+        //BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
+        BlockInWorld belowInWorld = new BlockInWorld(pBlockEntity.getLevel(),pos.below(), false);
+
+        return HeatSources.isHeatSource(pBlockEntity.getLevel(), belowInWorld);
     }
 
     protected static boolean hasMinimumHeatSource(int minimum, MelterBlockEntity melter) {
@@ -271,7 +274,8 @@ public class MelterBlockEntity extends BlockEntity  {
             return true;
         BlockPos pos = melter.getBlockPos();
         BlockState below = melter.getLevel().getBlockState(pos.below());
-        int sourceHeatLevel = HeatSources.getHeatSource(melter.getLevel(), below);
+        BlockInWorld belowInWorld = new BlockInWorld(melter.getLevel(),pos.below(), false);
+        int sourceHeatLevel = HeatSources.getHeatSource(melter.getLevel(), belowInWorld);
         return minimum <= sourceHeatLevel;
     }
 

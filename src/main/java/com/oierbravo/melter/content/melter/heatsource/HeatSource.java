@@ -2,14 +2,17 @@ package com.oierbravo.melter.content.melter.heatsource;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
+import com.oierbravo.melter.Melter;
+import com.oierbravo.melter.foundation.utility.BlockPredicateUtils;
+import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -23,19 +26,25 @@ import java.util.Optional;
 public class HeatSource {
 
     protected final int heatLevel;
-    protected final Block source;
+    protected final BlockPredicate source;
     protected final SourceType sourceType;
     protected List<ICondition> conditions = List.of();
+    protected Component customDescription = Component.empty();
 
     public static final Codec<HeatSource> CODEC = RecordCodecBuilder.create(instance -> // Given an instance
             instance.group( // Define the fields within the instance
-                    BuiltInRegistries.BLOCK.byNameCodec().fieldOf("source").forGetter(HeatSource::getSource),
+                    BlockPredicate.CODEC.fieldOf("source").forGetter(HeatSource::getSource),
                     Codec.INT.fieldOf("heatLevel").forGetter(HeatSource::getHeatLevel),
                     StringRepresentable.fromEnum(SourceType::values).fieldOf("sourceType").forGetter(HeatSource::getSourceType),
                     ICondition.LIST_CODEC.optionalFieldOf(ConditionalOps.DEFAULT_CONDITIONS_KEY).forGetter(HeatSource::getConditions)
             ).apply(instance, HeatSource::new) // Define how to create the object
     );
 
+    public HeatSource(BlockPredicate blockPredicate, Integer heatLevel, SourceType sourceType, Optional<List<ICondition>> conditions) {
+        this(blockPredicate, heatLevel, sourceType);
+        conditions.ifPresent(iConditions -> this.conditions = iConditions);
+
+    }
 
     private Optional<List<ICondition>> getConditions() {
         if(conditions.isEmpty())
@@ -49,41 +58,58 @@ public class HeatSource {
     public SourceType getSourceType() {
         return this.sourceType;
     }
-
-    public HeatSource(Block pSource, int pHeatLevel, SourceType pSourceType){
-        this(pSource, pHeatLevel, pSourceType, Optional.empty());
-    }
-    public HeatSource(Block pSource, int pHeatLevel, SourceType pSourceType, Optional<List<ICondition>> conditions){
+    public HeatSource(BlockPredicate pSource, int pHeatLevel, SourceType pSourceType){
         this.source = pSource;
         this.heatLevel = pHeatLevel;
         this.sourceType = pSourceType;
+    }
+    public HeatSource(BlockPredicate pSource, int pHeatLevel, SourceType pSourceType, Component pDescription){
+        this(pSource, pHeatLevel, pSourceType);
+        this.customDescription = pDescription;
+
+    }
+    public HeatSource(BlockPredicate pSource, int pHeatLevel, SourceType pSourceType, Optional<List<ICondition>> conditions, Component description){
+        this(pSource, pHeatLevel, pSourceType);
         conditions.ifPresent(iConditions -> this.conditions = iConditions);
+        if(Melter.withCreate)
+            this.customDescription = (CreateHeatSourceUtils.isBlazeBurner(pSource)) ? CreateHeatSourceUtils.createDescription(pSource) : description;
+        else
+            this.customDescription = description;
+
     }
 
     public int getHeatLevel() {
         return this.heatLevel;
     }
 
-    public Block getSource() {
+    public BlockPredicate getSource() {
         return this.source;
     }
-    public ItemStack getItemStackSource(){
-        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source);
-
-        //"minecraft:soul_fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-        return switch(blockResourceLocation.toString()) {
-            case "minecraft:fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FLINT_AND_STEEL), Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-            case "minecraft:soul_fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-            //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
-            default -> new ItemStack(BuiltInRegistries.ITEM.get(blockResourceLocation));
-        };
+    public boolean test(BlockInWorld pBlock){
+        return this.source.matches(pBlock);
     }
-    public Fluid getFluidSource() {
-        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source);
+    public ItemStack asItemStack(){
+        Optional<ItemStack> outputItemStack =  BlockPredicateUtils.Matcher.of(source).itemStacks().stream().map(itemStack -> {
+            itemStack.set(DataComponents.CUSTOM_NAME,customDescription);
+            return itemStack;
+        }).findAny();
+        return outputItemStack.orElse(ItemStack.EMPTY);
+    }
+    public List<ItemStack> asItemStacks(){
+        return BlockPredicateUtils.Matcher.of(source).itemStacks().stream().map(itemStack -> {
+            if(!customDescription.getString().equals(""))
+                itemStack.set(DataComponents.CUSTOM_NAME,customDescription);
+
+            return itemStack;
+        }).toList();
+    }
+
+    public Fluid asFluidSource() {
+        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source.blocks().get().get(0).value());
         return BuiltInRegistries.FLUID.get(blockResourceLocation);
     }
-    public FluidStack getFluidStackSource() {
-        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source);
+    public FluidStack asFluidStackSource() {
+        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source.blocks().get().get(0).value());
         return new FluidStack(BuiltInRegistries.FLUID.get(blockResourceLocation),1000);
     }
 
@@ -92,9 +118,15 @@ public class HeatSource {
             return true;
         return false;
     }
+    public void setDescription(Component description){
+        this.customDescription = description;
+    }
+    public MutableComponent getDescription(){
+        return (MutableComponent) customDescription;
+    }
 
     public enum SourceType implements StringRepresentable  {
-        BLOCK, FLUID, CREATIVE;
+        BLOCK, FLUID, CREATIVE, BLOCK_STATE;
 
 
         @Override

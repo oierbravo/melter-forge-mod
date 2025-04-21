@@ -1,8 +1,8 @@
-// 1.21	2024-08-24T14:03:04.4391914	Registrate Provider for melter [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2025-04-11T12:31:38.633565928	Registrate Provider for melter [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (enchantments), Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 90788599e76e329e566ea6059de9c11813618f17 assets/melter/blockstates/creative_heat_source.json
 c47cbaeba6f9699d99ad49163e048e25aff1e743 assets/melter/blockstates/melter.json
-86f3cb1149be6be34f727b6a104e525d5cc04296 assets/melter/lang/en_ud.json
-1165e6fb7360bfe77d25ccb73d940b4bc34aff06 assets/melter/lang/en_us.json
+f6cc75b3b0a7e7bd336f449aa0b5473111654bd3 assets/melter/lang/en_ud.json
+93a164cc7d6f374d588244d184640fec139887a5 assets/melter/lang/en_us.json
 f24bcee8f7c57aca39f76bffcf1769120e323708 assets/melter/models/block/creative_heat_source.json
 5d39dc075dc2794da454eeab403d5045e44bba67 assets/melter/models/item/creative_heat_source.json
 0b5a8cc816c9eecde5f718b39d5244455a6b61a7 assets/melter/models/item/melter.json

@@ -1,0 +1,16 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "heatLevel": 8,
+  "source": {
+    "blocks": "create:blaze_burner",
+    "state": {
+      "blaze": "kindled"
+    }
+  },
+  "sourceType": "BLOCK_STATE"
+}
