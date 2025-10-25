@@ -1,6 +1,5 @@
 package com.oierbravo.melter.compat.crafttweaker;
 
-
 import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
@@ -35,6 +34,7 @@ public class MeltingRecipeManager implements IRecipeManager<MeltingRecipe> {
      * @docParam duration 200
      * @docParam heatLevel 2
      */
+
     @ZenCodeType.Method
     public void addRecipe(String name, IFluidStack output, IIngredient input, int processingTime, int heatLevel   ){
         name = fixRecipeName(name);
