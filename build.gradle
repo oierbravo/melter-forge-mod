@@ -151,10 +151,16 @@ repositories {
         url = 'https://maven.tterrag.com'
     }
     maven {
-        url "https://maven.saps.dev/minecraft"
+        url "https://maven.latvian.dev/releases"
         content {
             includeGroup "dev.latvian.mods"
-            includeGroup "dev.ftb.mods"
+            includeGroup "dev.latvian.apps"
+        }
+    }
+    maven {
+        url 'https://jitpack.io'
+        content {
+            includeGroup "com.github.rtyley"
         }
     }
     maven {
@@ -193,7 +199,7 @@ dependencies {
 
 
     if (ct_enabled.toBoolean()) {
-        implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-1.21:$ct_version")
+        implementation("com.blamejared.crafttweaker:CraftTweaker-neoforge-${ct_minecraft_version}:$ct_version")
 
         annotationProcessor "com.blamejared.crafttweaker:Crafttweaker_Annotation_Processors:${ct_annotation_processor_version}"
     }
